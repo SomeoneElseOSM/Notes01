@@ -5,7 +5,7 @@ Obtain "notes" from OSM from within a bounding box and create a small file that 
 
 Eclipse
 -------
-You can import it into Eclipse if you want to (although, given that it's only one Java file `Changeset1.java`, there's really no need to).  Just `javac Changeset1.java` should work if you're not in an IDE.
+You can import it into Eclipse if you want to (although, given that it's only one Java file `Notes01.java`, there's really no need to).  Just `javac Notes01.java` should work if you're not in an IDE.
 
 
 Usage examples

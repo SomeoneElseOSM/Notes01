@@ -22,12 +22,12 @@ gpsbabel -i gpx -f notes.gpx -o garmin -F usb:
 
 Because the number of characters that can be included in Garmin eTrex notes is limited, only the first line is used, so note 57081 becomes:
 
-<pre>
+```xml
 <wpt lat="53.141339" lon="-1.1949134">
 <name>D N57081</name>
 <cmt>this area of land has been turned into a car park</cmt>
 <desc>Shipwreck this area of land has been turned into a car park</desc>
 <sym>Shipwreck</sym>
 </wpt>
-</pre>
+```
 

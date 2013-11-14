@@ -1,3 +1,6 @@
+# Ignored files
+bin
+*~
 *.class
 
 # Package Files #

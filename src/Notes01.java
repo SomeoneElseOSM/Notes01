@@ -202,6 +202,10 @@ public class Notes01
 
 						if ( l2_item_type.equals( "id" ))
 						{
+/* ------------------------------------------------------------------------------------------------------------
+ * The note ID, which becomes the waypoint name on the device, is hardcoded here as "D N" + the OSM note
+ * number.
+ * ------------------------------------------------------------------------------------------------------------ */
 							note_id = "D N" + myGetNodeValue( this_l2_item );
 							
 							if ( arg_debug >= Log_Informational_2 )
@@ -267,6 +271,10 @@ public class Notes01
 													{
 														if ( comment_action.equals( "opened" ))
 														{
+/* ------------------------------------------------------------------------------------------------------------
+ * The actual "note" on the Garmin device itself will be truncated after 30 characters.  We only process the 
+ * first line of text of the initial "opening" comment on the note here.
+ * ------------------------------------------------------------------------------------------------------------ */
 															comment_open_text = myGetNodeValue( this_l4_item );
 															int i = comment_open_text.indexOf( '\n' );
 															
@@ -338,17 +346,17 @@ public class Notes01
 					} // for cntr_2
 
 /* ------------------------------------------------------------------------------------------------------------
- * We've processed all attributes and child nodes; write out what we know about this note 
+ * We've processed all attributes and child nodes; write out what we know about this note
+ * 
+ *  The symbol used is currently hardcoded here to "Shipwreck", but can easily be changed below if required.
  * ------------------------------------------------------------------------------------------------------------ */
 					if (( arg_out_gpx_file != ""   ) &&
 						( display_name_matches ))
 					{
-						System.out.println( "display_name_matches: " + display_name_matches );
-
 						myPrintStream.println( "<wpt lat=\"" + lat_node.getNodeValue() + "\" lon=\"" + lon_node.getNodeValue() + "\">" );
 						myPrintStream.println( "<name>" + note_id + "</name>" );
 						myPrintStream.println( "<cmt>" + comment_open_text + "</cmt>" );
-						myPrintStream.println( "<desc>Shipwreck " + comment_open_text + "</desc>" );
+						myPrintStream.println( "<desc>" + comment_open_text + "</desc>" );
 						myPrintStream.println( "<sym>Shipwreck</sym>" );
 						myPrintStream.println( "</wpt>" );
 					}

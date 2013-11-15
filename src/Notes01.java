@@ -33,6 +33,7 @@ public class Notes01
 	final static String param_dev = "-dev";
 	final static String param_closed = "-closed=";
 	final static String param_limit = "-limit=";
+	final static String param_symbol = "-symbol=";
 	final static String param_bbox = "-bbox=";	// Unlike Changeset1 the is passed to the API
 
 	static String api_path = live_api_path;		// 				 Defaults to live API
@@ -41,6 +42,7 @@ public class Notes01
 	static int arg_debug = 0;					// -debug=       Default to no debug
 	static String arg_closed = "0";				// -closed=  	 Default to only showing open notes
 	static String arg_limit = "100";			// -limit=   	 Default to returning up to 100 notes
+	static String arg_symbol = "Shipwreck";		// -symbol=   	 The default Garmin symbol to use for created waypoints
 	static String arg_bbox = "";				// -bbox=		 No bounding box default
 	
 	static String arg_min_lat_string = "";
@@ -95,7 +97,7 @@ public class Notes01
 		return return_string;
 	}
 	
-	private static void process_notes_xml( Node root_node, String passed_display_name )
+	private static void process_notes_xml( Node root_node, String passed_display_name, String passed_symbol )
 	{
 		int osm_notes_found = 0;
 	
@@ -348,7 +350,8 @@ public class Notes01
 /* ------------------------------------------------------------------------------------------------------------
  * We've processed all attributes and child nodes; write out what we know about this note
  * 
- *  The symbol used is currently hardcoded here to "Shipwreck", but can easily be changed below if required.
+ *  The symbol used currently defaults to "Shipwreck", but can easily be changed on the command line 
+ *  if required.
  * ------------------------------------------------------------------------------------------------------------ */
 					if (( arg_out_gpx_file != ""   ) &&
 						( display_name_matches ))
@@ -357,7 +360,7 @@ public class Notes01
 						myPrintStream.println( "<name>" + note_id + "</name>" );
 						myPrintStream.println( "<cmt>" + comment_open_text + "</cmt>" );
 						myPrintStream.println( "<desc>" + comment_open_text + "</desc>" );
-						myPrintStream.println( "<sym>Shipwreck</sym>" );
+						myPrintStream.println( "<sym>" + passed_symbol + "</sym>" );
 						myPrintStream.println( "</wpt>" );
 					}
 					
@@ -391,12 +394,13 @@ public class Notes01
 	}
 
 	
-	static void process_notes_url_common ( URL passed_url, String passed_display_name ) throws Exception
+	static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_symbol ) throws Exception
 	{
 		if ( arg_debug >= Log_Informational_2 )
 		{
 			System.out.println( "passed_url: " + passed_url );
 			System.out.println( "passed_display_name: " + passed_display_name );
+			System.out.println( "passed_symbol: " + passed_symbol );
 		}
 		
 		InputStreamReader input;
@@ -423,12 +427,12 @@ public class Notes01
 	
 	    Document AJTdocument = AJTbuilder.parse( inputStream );
 	    Element AJTrootElement = AJTdocument.getDocumentElement();
-	    process_notes_xml( AJTrootElement, passed_display_name );
+	    process_notes_xml( AJTrootElement, passed_display_name, passed_symbol );
 	
 	    input.close();
 	}
 
-	static void process_notes_file ( String passed_display_name, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception
+	static void process_notes_file ( String passed_display_name, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception
 	{
 	    DocumentBuilderFactory AJTfactory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder AJTbuilder = AJTfactory.newDocumentBuilder();
@@ -436,11 +440,11 @@ public class Notes01
 	
 	    Document AJTdocument = AJTbuilder.parse( inputStream );
 	    Element AJTrootElement = AJTdocument.getDocumentElement();
-	    process_notes_xml( AJTrootElement, passed_display_name );
+	    process_notes_xml( AJTrootElement, passed_display_name, passed_symbol );
 	}
 	
 	
-	static void process_notes( String passed_display_name, String passed_closed, String passed_limit, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception 
+	static void process_notes( String passed_display_name, String passed_closed, String passed_limit, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception 
 	{
 		if ( arg_debug >= Log_Low_Routine_Start )
 		{
@@ -449,7 +453,7 @@ public class Notes01
 
 		URL url;
 		url = new URL( api_path + "notes?closed=0&closed=" + passed_closed + "&limit=" + passed_limit + "&bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string );
-		process_notes_url_common( url, passed_display_name );
+		process_notes_url_common( url, passed_display_name, passed_symbol );
 	}
 	
 	static String get_line_param( String passed_param, String passed_in_line )
@@ -690,6 +694,29 @@ public class Notes01
 				} // -limit
 				
 /* ------------------------------------------------------------------------------
+ * What Garmin symbol should be used?  If unset the default "Shipwreck" is used.
+ * Note that Garmin symbols with spaces in aren't supported yet.
+ * ------------------------------------------------------------------------------ */
+				if ( args[i].startsWith( param_symbol ))
+				{	
+					try
+					{
+						arg_symbol = args[i].substring( param_symbol.length() );
+					}
+					catch( Exception ex )
+					{
+/* ------------------------------------------------------------------------------
+ * Any failure above just means that we leave arg_limit at the default of "100"
+ * ------------------------------------------------------------------------------ */
+					}
+					
+					if ( arg_debug >= Log_Informational_2 )
+					{
+						System.out.println( "arg_symbol: [" + arg_symbol + "]" );
+					}
+				} // -limit
+				
+/* ------------------------------------------------------------------------------
  * A bounding box that we're interesting in fetching notes from.
  * 
  * Unlike with "Changeset1", this is passed to the API, although we still do
@@ -790,11 +817,11 @@ public class Notes01
 		{
 			if ( arg_display_name.length() == 0 )
 			{
-				process_notes( "", arg_closed, arg_limit, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				process_notes( "", arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
 			} // no display_name argument passed
 			else
 			{ // display_name passed.  
-				process_notes( arg_display_name, arg_closed, arg_limit, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				process_notes( arg_display_name, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
 			} // display_name passed
 		} // no "in" file
 		else
@@ -817,7 +844,7 @@ public class Notes01
 					System.out.println( "Input file: " + arg_in_file );
 				}
 
-				process_notes_file( arg_display_name, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				process_notes_file( arg_display_name, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
 			}
 		}
 		

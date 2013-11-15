@@ -29,14 +29,14 @@ Because the number of characters that can be included in Garmin eTrex notes is l
 <wpt lat="53.141339" lon="-1.1949134">
 <name>D N57081</name>
 <cmt>this area of land has been turned into a car park</cmt>
-<desc>Shipwreck this area of land has been turned into a car park</desc>
+<desc>this area of land has been turned into a car park</desc>
 <sym>Shipwreck</sym>
 </wpt>
 ```
-The name is currently hardcoded to "D N" + the note number and the Garmin symbol used is hardcoded as "Shipwreck".
+The name is currently hardcoded to "D N" + the note number and the default Garmin symbol used is "Shipwreck".
 
-Other supported parameters include `=limit=X` (to change the download limit from the API default of 100) to X, `-closed=Y` (to download also notes closed in the last Y days) and `-display-name=Z` (to download only notes opened or commented on by the user with display name Z).  Therefore:
+Other supported parameters include `=symbol=W` (to use Garmin symbol W), `=limit=X` (to change the download limit from the API default of 100) to X, `-closed=Y` (to download also notes closed in the last Y days) and `-display-name=Z` (to download only notes opened or commented on by the user with display name Z).  Only valid Garmin symbols without spaces in (such as `Shipwreck` or `Forest`) are currenly supported.  Therefore:
 
-    java Notes01 -bbox=-1.2022,53.1365,-1.1882,53.1435 -closed=7 -limit=3 -display_name=SomeoneElse -output_gpx=notes2.gpx
+    java Notes01 -bbox=-1.2022,53.1365,-1.1882,53.1435 -symbol=Forest -closed=7 -limit=3 -display_name=SomeoneElse -output_gpx=notes2.gpx
 
 This obtains up to 3 notes (open, and those closed in the last 7 days) from the OSM live API in the same bounding box, opened or commented on by user "SomeoneElse".

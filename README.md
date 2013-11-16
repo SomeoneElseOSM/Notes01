@@ -8,7 +8,7 @@ Although the notes API http://wiki.openstreetmap.org/wiki/API_v0.6#Map_Notes_API
 
 Eclipse
 -------
-You can import it into Eclipse if you want to (although, given that it's only one Java file `Notes01.java`, there's really no need to).  If you're not using an IDE, install a JDK (e.g. from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just `javac Notes01.java` should create `Notes01.class`.
+You can import it into Eclipse if you want to (although, given that it's only one Java file `Notes01.java`, there's really no need to).  If you're not using an IDE, install a JDK (e.g. from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` that you have just installed is on the PATH and `javac Notes01.java` in order to create `Notes01.class`.
 
 
 Usage examples

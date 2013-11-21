@@ -813,41 +813,50 @@ public class Notes01
 /* ------------------------------------------------------------------------------
  * Actually do what we've been asked to do.
  * ------------------------------------------------------------------------------ */
-		if ( arg_in_file.equals( "" ))
-		{
-			if ( arg_display_name.length() == 0 )
-			{
-				process_notes( "", arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
-			} // no display_name argument passed
+		if ( !arg_bbox.equals( "" ))
+		    {
+			if ( arg_in_file.equals( "" ))
+			    {
+				if ( arg_display_name.length() == 0 )
+				    {
+					process_notes( "", arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				    } // no display_name argument passed
+				else
+				    { // display_name passed.  
+					process_notes( arg_display_name, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				    } // display_name passed
+			    } // no "in" file
 			else
-			{ // display_name passed.  
-				process_notes( arg_display_name, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
-			} // display_name passed
-		} // no "in" file
+			    { // "in" file specified
+				if ( arg_in_file.equals( "!file" ))
+				    {
+					if ( arg_debug >= Log_Informational_2 )
+					    {
+						System.out.println( "Input file could not be opened" );
+					    }
+				    }
+				else
+				    {
+					/* ------------------------------------------------------------------------------
+					 * We do have an input file defined and we have been able to open it.
+					 * ------------------------------------------------------------------------------ */
+
+					if ( arg_debug >= Log_Informational_2 )
+					    {
+						System.out.println( "Input file: " + arg_in_file );
+					    }
+
+					process_notes_file( arg_display_name, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				    }
+			    }
+		    } // arg_bbox
 		else
-		{ // "in" file specified
-			if ( arg_in_file.equals( "!file" ))
-			{
-				if ( arg_debug >= Log_Informational_2 )
-				{
-					System.out.println( "Input file could not be opened" );
-				}
-			}
-			else
-			{
-/* ------------------------------------------------------------------------------
- * We do have an input file defined and we have been able to open it.
- * ------------------------------------------------------------------------------ */
-
-				if ( arg_debug >= Log_Informational_2 )
-				{
-					System.out.println( "Input file: " + arg_in_file );
-				}
-
-				process_notes_file( arg_display_name, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
-			}
-		}
-		
+		    {
+			if ( arg_debug >= Log_Error )
+			    {
+				System.out.println( "No bounding box defined." );
+			    }
+		    }
 
 		
 /* ------------------------------------------------------------------------------

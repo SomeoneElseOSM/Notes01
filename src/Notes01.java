@@ -377,7 +377,10 @@ public class Notes01
 				} // !note
 			} // for L1 nodes
 
-			myPrintStream.println( "</gpx>" );
+			if ( arg_out_gpx_file != "" )
+			{
+				myPrintStream.println( "</gpx>" );
+			}
 
 			if ( arg_debug >= Log_Informational_1 )
 			{

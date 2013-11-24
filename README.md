@@ -33,7 +33,7 @@ Because the number of characters that can be included in Garmin eTrex notes is l
 <sym>Shipwreck</sym>
 </wpt>
 ```
-The name is currently hardcoded to "D N" + the note number and the default Garmin symbol used is "Shipwreck".
+The name is currently hardcoded to "S N" + the note number and the default Garmin symbol used is "Shipwreck".
 
 Other supported parameters include `=symbol=W` (to use Garmin symbol W), `=limit=X` (to change the download limit from the API default of 100) to X, `-closed=Y` (to download also notes closed in the last Y days) and `-display-name=Z` (to download only notes opened or commented on by the user with display name Z).  Only valid Garmin symbols without spaces in (such as `Shipwreck` or `Forest`) are currenly supported.  Therefore:
 

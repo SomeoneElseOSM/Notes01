@@ -205,10 +205,10 @@ public class Notes01
 						if ( l2_item_type.equals( "id" ))
 						{
 /* ------------------------------------------------------------------------------------------------------------
- * The note ID, which becomes the waypoint name on the device, is hardcoded here as "D N" + the OSM note
+ * The note ID, which becomes the waypoint name on the device, is hardcoded here as "S N" + the OSM note
  * number.
  * ------------------------------------------------------------------------------------------------------------ */
-							note_id = "D N" + myGetNodeValue( this_l2_item );
+							note_id = "S N" + myGetNodeValue( this_l2_item );
 							
 							if ( arg_debug >= Log_Informational_2 )
 							{

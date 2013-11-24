@@ -503,7 +503,40 @@ public class Notes01
 		
 		return line_param;
 	}
-	
+
+/* ------------------------------------------------------------------------------
+ * This is designed to look for the next comma, but that can be either "," or
+ * "%2C" depending on where the bbox came from.  There are two methods - they
+ * use indexOf from the start or from a given position.
+ * ------------------------------------------------------------------------------ */
+	static int return_next_comma( String passed_bbox )
+	{
+		int comma_pos = -1;
+		
+		comma_pos = passed_bbox.indexOf( "," );
+		
+		if ( comma_pos < 0  )
+		{
+			comma_pos = passed_bbox.indexOf( "%2C" );
+		}
+		
+		return comma_pos;
+	}
+
+	static int return_next_comma( String passed_bbox, int start_pos )
+	{
+		int comma_pos = -1;
+		
+		comma_pos = arg_bbox.indexOf( ",", start_pos );
+		
+		if ( comma_pos < 0  )
+		{
+			comma_pos = passed_bbox.indexOf( "%2C", start_pos );
+		}
+
+		return comma_pos;
+	}
+
 /* ------------------------------------------------------------------------------
  * Data passed on the command line:
  * 
@@ -735,12 +768,22 @@ public class Notes01
 						System.out.println( "arg_bbox length: " + arg_bbox.length() );
 					}
 					
-					int comma_pos = arg_bbox.indexOf( "," );
+					int comma_pos = return_next_comma( arg_bbox );
 					int old_comma_pos = 0;
 					
 					if ( comma_pos > 0 )
 					{ // found min lon
 						arg_min_lon_string = arg_bbox.substring( 0, comma_pos );
+
+/* ------------------------------------------------------------------------------
+ * Commas are one character long,  the other sequence we match (%2C) is 3.  We
+ * use comma_pos to start searching for the start of the next string, so if we've 
+ * found %2C need to shuffle 2 to the right.
+ * ------------------------------------------------------------------------------ */
+						if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+						{
+							comma_pos = comma_pos + 2;
+						}
 						
 						if ( arg_debug >= Log_Informational_1 )
 						{
@@ -749,12 +792,17 @@ public class Notes01
 
 						
 						old_comma_pos = comma_pos;
-						comma_pos = arg_bbox.indexOf( ",", comma_pos+1 );
+						comma_pos = return_next_comma( arg_bbox, comma_pos+1 );
 
 						if ( comma_pos > 0 )
 						{ // found min lat
 							arg_min_lat_string = arg_bbox.substring( old_comma_pos+1, comma_pos );
 							
+							if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+							{
+								comma_pos = comma_pos + 2;
+							}
+
 							if ( arg_debug >= Log_Informational_1 )
 							{
 								System.out.println( "arg_min_lat: " + arg_min_lat_string );
@@ -762,11 +810,16 @@ public class Notes01
 
 							
 							old_comma_pos = comma_pos;
-							comma_pos = arg_bbox.indexOf( ",", comma_pos+1 );
+							comma_pos = return_next_comma( arg_bbox, comma_pos+1 );
 
 							if ( comma_pos > 0 )
 							{ // found max lon; what's left must be max lat
 								arg_max_lon_string = arg_bbox.substring( old_comma_pos+1, comma_pos );
+								
+								if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+								{
+									comma_pos = comma_pos + 2;
+								}
 								
 								if ( arg_debug >= Log_Informational_1 )
 								{
@@ -776,6 +829,11 @@ public class Notes01
 
 								old_comma_pos = comma_pos;
 								arg_max_lat_string = arg_bbox.substring( old_comma_pos+1 );
+								
+								if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+								{
+									comma_pos = comma_pos + 2;
+								}
 								
 								if ( arg_debug >= Log_Informational_1 )
 								{

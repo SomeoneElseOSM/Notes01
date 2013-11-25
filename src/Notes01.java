@@ -273,12 +273,28 @@ public class Notes01
 													{
 														if ( comment_action.equals( "opened" ))
 														{
+															comment_open_text = myGetNodeValue( this_l4_item );
+/* ------------------------------------------------------------------------------------------------------------
+ * Remove any & from the string 
+ * ------------------------------------------------------------------------------------------------------------ */
+															int i = comment_open_text.indexOf( '&' );
+															
+															if ( i != -1 )
+															{
+																if ( i == 0 )
+																{
+																	comment_open_text = "and " + comment_open_text.substring( i+1 ); 
+																}
+																else
+																{
+																	comment_open_text = comment_open_text.substring( 0, i ) + " and " + comment_open_text.substring( i+1 ); 
+																}
+															}
 /* ------------------------------------------------------------------------------------------------------------
  * The actual "note" on the Garmin device itself will be truncated after 30 characters.  We only process the 
  * first line of text of the initial "opening" comment on the note here.
  * ------------------------------------------------------------------------------------------------------------ */
-															comment_open_text = myGetNodeValue( this_l4_item );
-															int i = comment_open_text.indexOf( '\n' );
+															i = comment_open_text.indexOf( '\n' );
 															
 															if ( arg_debug >= Log_Informational_2 )
 															{

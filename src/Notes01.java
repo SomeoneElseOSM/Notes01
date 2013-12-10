@@ -29,6 +29,7 @@ public class Notes01
 	final static String param_debug = "-debug=";
 	final static String param_input = "-input=";
 	final static String param_output_gpx = "-output_gpx=";
+	final static String param_output_txt = "-output_txt=";
 	final static String param_display_name = "-display_name=";
 	final static String param_dev = "-dev";
 	final static String param_closed = "-closed=";
@@ -39,6 +40,7 @@ public class Notes01
 	static String api_path = live_api_path;		// 				 Defaults to live API
 	static String arg_in_file = "";				// -input=       Default to no input file
 	static String arg_out_gpx_file = "";		// -output_gpx=  No output GPX file default
+	static String arg_out_txt_file = "";		// -output_txt=  No output TXT file default
 	static int arg_debug = 0;					// -debug=       Default to no debug
 	static String arg_closed = "0";				// -closed=  	 Default to only showing open notes
 	static String arg_limit = "100";			// -limit=   	 Default to returning up to 100 notes
@@ -52,7 +54,9 @@ public class Notes01
 
 	static File myFile;
 	static OutputStream myoutput_gpxStream;
-	static PrintStream myPrintStream;
+	static OutputStream myoutput_txtStream;
+	static PrintStream myGpxPrintStream;
+	static PrintStream myTxtPrintStream;
 
 	
 	private static String myGetNodeValue( Node passed_node )
@@ -116,8 +120,8 @@ public class Notes01
  * ------------------------------------------------------------------------------------------------------------ */
 			if ( arg_out_gpx_file != "" )
 			{
-				myPrintStream.println( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>" );
-				myPrintStream.println( "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.13.7\" version=\"1.1\">" );
+				myGpxPrintStream.println( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>" );
+				myGpxPrintStream.println( "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.13.7\" version=\"1.1\">" );
 			}
 
 /* ------------------------------------------------------------------------------------------------------------
@@ -271,11 +275,15 @@ public class Notes01
 												{
 													if ( l4_item_type.equals( "text" ))
 													{
+/* ------------------------------------------------------------------------------------------------------------
+ * We only process the "opening" text currently (we're limited to 30 characters in any case)  
+ * ------------------------------------------------------------------------------------------------------------ */
 														if ( comment_action.equals( "opened" ))
 														{
 															comment_open_text = myGetNodeValue( this_l4_item );
 /* ------------------------------------------------------------------------------------------------------------
- * Remove any & from the string 
+ * Remove any & from the string.  This must be done because MapSource doesn't like "&" in comment text, despite
+ * the fact that it's actually possible to enter it on the Garmin keyboard.
  * ------------------------------------------------------------------------------------------------------------ */
 															int i = comment_open_text.indexOf( '&' );
 															
@@ -291,21 +299,22 @@ public class Notes01
 																}
 															}
 /* ------------------------------------------------------------------------------------------------------------
- * The actual "note" on the Garmin device itself will be truncated after 30 characters.  We only process the 
- * first line of text of the initial "opening" comment on the note here.
+ * The actual "note" on the Garmin device itself will be truncated after 30 characters.  
+ * 
+ * Code to only process the first line of text is commented out below.
  * ------------------------------------------------------------------------------------------------------------ */
-															i = comment_open_text.indexOf( '\n' );
-															
-															if ( arg_debug >= Log_Informational_2 )
-															{
-																System.out.println( "i: " + i );
-															}
-															
-															if ( i > 0 )
-															{
-																comment_open_text = comment_open_text.substring( 0, i );
-															}
-														}
+//															i = comment_open_text.indexOf( '\n' );
+//															
+//															if ( arg_debug >= Log_Informational_2 )
+//															{
+//																System.out.println( "i: " + i );
+//															}
+//															
+//															if ( i > 0 )
+//															{
+//																comment_open_text = comment_open_text.substring( 0, i );
+//															}
+														} // opened comments - no "else" because we don't handle others currently.
 													
 														if ( arg_debug >= Log_Informational_2 )
 														{
@@ -372,12 +381,17 @@ public class Notes01
 					if (( arg_out_gpx_file != ""   ) &&
 						( display_name_matches ))
 					{
-						myPrintStream.println( "<wpt lat=\"" + lat_node.getNodeValue() + "\" lon=\"" + lon_node.getNodeValue() + "\">" );
-						myPrintStream.println( "<name>" + note_id + "</name>" );
-						myPrintStream.println( "<cmt>" + comment_open_text + "</cmt>" );
-						myPrintStream.println( "<desc>" + comment_open_text + "</desc>" );
-						myPrintStream.println( "<sym>" + passed_symbol + "</sym>" );
-						myPrintStream.println( "</wpt>" );
+						myGpxPrintStream.println( "<wpt lat=\"" + lat_node.getNodeValue() + "\" lon=\"" + lon_node.getNodeValue() + "\">" );
+						myGpxPrintStream.println( "<name>" + note_id + "</name>" );
+						myGpxPrintStream.println( "<cmt>" + comment_open_text + "</cmt>" );
+						myGpxPrintStream.println( "<desc>" + comment_open_text + "</desc>" );
+						myGpxPrintStream.println( "<sym>" + passed_symbol + "</sym>" );
+						myGpxPrintStream.println( "</wpt>" );
+
+						myTxtPrintStream.println( note_id );
+						myTxtPrintStream.println( "==========" );
+						myTxtPrintStream.println( comment_open_text );
+						myTxtPrintStream.println( "" );
 					}
 					
 				} // note
@@ -395,7 +409,7 @@ public class Notes01
 
 			if ( arg_out_gpx_file != "" )
 			{
-				myPrintStream.println( "</gpx>" );
+				myGpxPrintStream.println( "</gpx>" );
 			}
 
 			if ( arg_debug >= Log_Informational_1 )
@@ -561,7 +575,8 @@ public class Notes01
  * param_limit = "-limit="; defaults to 100
  * param_closed = "-closed="; defaults to 0 days (unlike the API)
  * param_input = "-input="; for testing of a previously wget-obtained file.
- * param_output_gpx = "-output_gpx="; for the output_gpx GPX
+ * param_output_gpx = "-output_gpx="; for the output_gpx GPX file
+ * param_output_txt = "-output_txt="; for the output_gpx TXT file
  * param_debug = "-debug="; 
  * param_display_name = "-display_name=";
  * ------------------------------------------------------------------------------ */
@@ -652,7 +667,7 @@ public class Notes01
 					try
 					{
 						myoutput_gpxStream = new FileOutputStream( arg_out_gpx_file );
-						myPrintStream = new PrintStream( myoutput_gpxStream );
+						myGpxPrintStream = new PrintStream( myoutput_gpxStream );
 					}
 					catch( Exception ex )
 					{
@@ -671,6 +686,35 @@ public class Notes01
 					}
 				} // -output_gpx
 				
+/* ------------------------------------------------------------------------------
+ * output_txt file
+ * ------------------------------------------------------------------------------ */
+				if ( args[i].startsWith( param_output_txt ))
+				{	
+					arg_out_txt_file = args[i].substring( param_output_txt.length() );
+
+					try
+					{
+						myoutput_txtStream = new FileOutputStream( arg_out_txt_file );
+						myTxtPrintStream = new PrintStream( myoutput_txtStream );
+					}
+					catch( Exception ex )
+					{
+						arg_out_txt_file = "";
+						
+						if ( arg_debug >= Log_Informational_1 )
+						{
+							System.out.println( "Error opening output_txt file: " + ex.getMessage() );
+						}
+					}
+					
+					if ( arg_debug >= Log_Informational_2 )
+					{
+						System.out.println( "arg_out_txt_file: " + arg_out_txt_file );
+						System.out.println( "arg_out_txt_file length: " + arg_out_txt_file.length() );
+					}
+				} // -output_txt
+								
 /* ------------------------------------------------------------------------------
  * The user that we're interested in changesets for - display name
  * ------------------------------------------------------------------------------ */
@@ -937,11 +981,16 @@ public class Notes01
 
 		
 /* ------------------------------------------------------------------------------
- * If we've been writing to an output_gpx file, close it.
+ * If we've been writing to an output_gpx or output_txt file, close it.
  * ------------------------------------------------------------------------------ */
 		if ( !arg_out_gpx_file.equals( "" ))
 		{
 			myoutput_gpxStream.close();
+		}
+		
+		if ( !arg_out_txt_file.equals( "" ))
+		{
+			myoutput_txtStream.close();
 		}
 	} // main
 }

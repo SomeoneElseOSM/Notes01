@@ -206,9 +206,9 @@ public class Notes01
 						{
 /* ------------------------------------------------------------------------------------------------------------
  * The note ID, which becomes the waypoint name on the device, is hardcoded here as "S N" + the OSM note
- * number.
+ * number.  The OSM note number is padded out to something like "<name>S N0084131</name>"
  * ------------------------------------------------------------------------------------------------------------ */
-							note_id = "S N" + myGetNodeValue( this_l2_item );
+							note_id = "S N" + String.format( "%07d", Integer.parseInt( myGetNodeValue( this_l2_item )));
 							
 							if ( arg_debug >= Log_Informational_2 )
 							{

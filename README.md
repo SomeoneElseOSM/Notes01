@@ -27,7 +27,7 @@ Because the number of characters that can be included in Garmin eTrex notes is l
 
 ```xml
 <wpt lat="53.141339" lon="-1.1949134">
-<name>D N57081</name>
+<name>S N0057081</name>
 <cmt>this area of land has been turned into a car park</cmt>
 <desc>this area of land has been turned into a car park</desc>
 <sym>Shipwreck</sym>

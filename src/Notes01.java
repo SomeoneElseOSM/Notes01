@@ -387,13 +387,16 @@ public class Notes01
 						myGpxPrintStream.println( "<desc>" + comment_open_text + "</desc>" );
 						myGpxPrintStream.println( "<sym>" + passed_symbol + "</sym>" );
 						myGpxPrintStream.println( "</wpt>" );
-
+					}
+					
+					if (( arg_out_txt_file != ""   ) &&
+						( display_name_matches ))
+					{
 						myTxtPrintStream.println( note_id );
 						myTxtPrintStream.println( "==========" );
 						myTxtPrintStream.println( comment_open_text );
 						myTxtPrintStream.println( "" );
-					}
-					
+					}					
 				} // note
 				else
 				{ // !note

@@ -281,23 +281,13 @@ public class Notes01
 														if ( comment_action.equals( "opened" ))
 														{
 															comment_open_text = myGetNodeValue( this_l4_item );
-/* ------------------------------------------------------------------------------------------------------------
- * Remove any & from the string.  This must be done because MapSource doesn't like "&" in comment text, despite
- * the fact that it's actually possible to enter it on the Garmin keyboard.
- * ------------------------------------------------------------------------------------------------------------ */
-															int i = comment_open_text.indexOf( '&' );
 															
-															if ( i != -1 )
-															{
-																if ( i == 0 )
-																{
-																	comment_open_text = "and " + comment_open_text.substring( i+1 ); 
-																}
-																else
-																{
-																	comment_open_text = comment_open_text.substring( 0, i ) + " and " + comment_open_text.substring( i+1 ); 
-																}
-															}
+/* ------------------------------------------------------------------------------------------------------------
+ * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
+ * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
+ * ------------------------------------------------------------------------------------------------------------ */
+															comment_open_text = resolve_ampersands( comment_open_text );
+
 /* ------------------------------------------------------------------------------------------------------------
  * The actual "note" on the Garmin device itself will be truncated after 30 characters.  
  * 
@@ -429,7 +419,43 @@ public class Notes01
 		}
 	}
 
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Any strings sent to a Garmin (via MapSource or GPSBabel) must have ampersands escaped so that "&" is sent
+ * as "&amp;" 
+ * 
+ * A future option may be to use e.g.
+ * http://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringEscapeUtils.html
+ * but I'm not aware yet of anything other than ampersand that causes problems, so haven't done that yet. 
+ * ------------------------------------------------------------------------------------------------------------ */
+	static String resolve_ampersands( String comment_open_text ) 
+	{
+		String ampersand_replacement = "&amp;";
+		String result_text = comment_open_text;
+
+		int i = result_text.indexOf( '&' );
+		
+		while ( i != -1 )
+		{
+			if ( i == 0 )
+			{
+				result_text = ampersand_replacement + result_text.substring( i+1 ); 
+			}
+			else
+			{
+				result_text = result_text.substring( 0, i ) + ampersand_replacement + result_text.substring( i+1 ); 
+			}
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Start searching for any text after the "&amp;" that we have just added.
+ * ------------------------------------------------------------------------------------------------------------ */
+			i = result_text.indexOf( '&', i + ampersand_replacement.length() );
+		}
+
+		return result_text;
+	}
 	
+
 	static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_symbol ) throws Exception
 	{
 		if ( arg_debug >= Log_Informational_2 )

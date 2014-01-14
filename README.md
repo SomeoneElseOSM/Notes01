@@ -8,16 +8,16 @@ Although the notes API http://wiki.openstreetmap.org/wiki/API_v0.6#Map_Notes_API
 
 Eclipse
 -------
-You can import it into Eclipse if you want to (although, given that it's only one Java file `Notes01.java`, there's really no need to).  If you're not using an IDE, install a JDK (e.g. from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` that you have just installed is on the PATH and `javac Notes01.java` in order to create `Notes01.class`.
+You can import it into Eclipse if you want to (although, given that it's only a couple of .java files, there's really no need to).  If you're not using an IDE, install a JDK (e.g. from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` that you have just installed is on the PATH, and `javac Notes01.java` and `javac Notes01TestAmpersand01.java` in order to create `Notes01.class` and `Notes01TestAmpersand01.class`.  You can either `java Notes01.class ...` or export `Notes01.jar`. 
 
 
 Usage examples
 --------------
-    java Notes01 -bbox=-1.2022,53.1365,-1.1882,53.1435 -output_gpx=notes.gpx
+    java -jar Notes01.jar -bbox=-1.2022,53.1365,-1.1882,53.1435 -output_gpx=notes.gpx
 
 This obtains only open notes from the OSM live API in this bounding box:
 
-http://www.openstreetmap.org/?box=yes&bbox=-1.2022,53.1365,-1.1882,53.1435#map=15/53.1400/-1.2006&layers=N
+http://owl.apis.dev.openstreetmap.org/?box=yes&bbox=-1.2022,53.1365,-1.1882,53.1435#map=15/53.1400/-1.2006&layers=N
 
 and creates a GPX file of them which can then be uploaded to a Garmin GPS via either Mapsource or gpsbabel:
 
@@ -37,6 +37,6 @@ The name is currently hardcoded to "S N" + the note number and the default Garmi
 
 Other supported parameters include `=symbol=W` (to use Garmin symbol W), `=limit=X` (to change the download limit from the API default of 100) to X, `-closed=Y` (to download also notes closed in the last Y days), `-output_txt=` (to output a text file as well to complement the short Garmin comments) and `-display-name=Z` (to download only notes opened or commented on by the user with display name Z).  Only valid Garmin symbols without spaces in (such as `Shipwreck` or `Forest`) are currently supported.  Therefore:
 
-    java Notes01 -bbox=-1.2022,53.1365,-1.1882,53.1435 -symbol=Forest -closed=7 -limit=3 -display_name=SomeoneElse -output_gpx=notes2.gpx -output_txt=notes2.txt
+    java -jar Notes01.jar -bbox=-1.2022,53.1365,-1.1882,53.1435 -symbol=Forest -closed=7 -limit=3 -display_name=SomeoneElse -output_gpx=notes2.gpx -output_txt=notes2.txt
 
 This obtains up to 3 notes (open, and those closed in the last 7 days) from the OSM live API in the same bounding box, opened or commented on by user "SomeoneElse".  It writes a GPX file that can be sent to a Garmin device and also a text file that you can e.g. also email yourself for reference.

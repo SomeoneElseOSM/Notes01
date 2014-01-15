@@ -1,14 +1,22 @@
 Notes01
 =======
 
-Obtains the opening comments of "notes" from OSM from within a bounding box and creates a small file from them that will fit on a Garmin eTrex.
+Obtains the opening comments of "notes" from OSM from within a bounding box and creates a small file from them that will fit 
+on a Garmin eTrex.
 
-Although the notes API http://wiki.openstreetmap.org/wiki/API_v0.6#Map_Notes_API supports a "notes.gpx" endpoint that allows a GPX file to be downloaded directly, it's not formatted in a way that can be understood by old Garmin GPSs.
+Although the notes API http://wiki.openstreetmap.org/wiki/API_v0.6#Map_Notes_API supports a "notes.gpx" endpoint that 
+allows a GPX file to be downloaded directly, it's not formatted in a way that can be understood by old Garmin GPSs.
 
 
-Eclipse
--------
-You can import it into Eclipse if you want to (although, given that it's only a couple of .java files, there's really no need to).  If you're not using an IDE, install a JDK (e.g. from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` that you have just installed is on the PATH, and `javac Notes01.java` and `javac Notes01TestAmpersand01.java` in order to create `Notes01.class` and `Notes01TestAmpersand01.class`.  You can either `java Notes01.class ...` or export `Notes01.jar`. 
+Building with Eclipse, java from the command line or ant
+--------------------------------------------------------
+You can import it into Eclipse if you want to (although, given that it's only a couple of .java files, there's really no 
+need to).  If you're not using an IDE, install a JDK (e.g. 
+from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` 
+that you have just installed is on the PATH, and `javac Notes01.java` in order to 
+create `Notes01.class`.  `Notes01TestAmpersand01.class` contains some unit tests and isn't needed to export notes.  
+You can either `java Notes01 ...` or export `Notes01.jar`.
+A `build.xml` file is also provided for `ant` users; to use that place a copy of of `junit.jar` into the "lib" directory.  
 
 
 Usage examples

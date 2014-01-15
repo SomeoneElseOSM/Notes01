@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="Notes01" basedir=".">
+
+  <!-- Initialisation of properties -->
+  <property name="lib" value="lib"/>
+  <property name="bin" value="bin"/>
+  <property name="src" value="src"/>
+
+  <!-- Third party libraries needed if unit tests are to be run -->
+  <property name="junit.jar" location="${lib}/junit.jar"/>
+  <property name="org.hamcrest.core_1.1.0.v20090501071000.jar" location="${lib}/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+
+  <!-- 
+     Classpath 
+
+     The test classes require "junit.jar" and a "hamcrest" jar.  the Eclipse build will pull from 
+     Eclipse's Junit plugin, but I've included a reference to a "junit.jar" in "lib" for the 
+     benefit of non-Eclipse users building with "ant".
+    -->
+  <path id="classpath">
+    <pathelement location="${bin}"/>
+    <pathelement path="${junit.jar}"/>
+    <pathelement path="${org.hamcrest.core_1.1.0.v20090501071000.jar}"/>
+  </path>
+
+  <!-- Setup - create bin directory if does not exist -->
+  <target name="setup">
+    <mkdir dir="${bin}"/>
+  </target>
+
+  <!-- Clean - delete the bin directory, containing all build classes and libraries -->
+  <target name="clean">
+    <delete dir="${bin}"/>
+  </target>
+
+  <target name="compile" description="compilation">
+    <javac srcdir="${src}" destdir="${bin}" debug="yes" includeantruntime="false">
+      <include name="**/*.java"/>
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+    <target name="create_run_jar">
+        <jar destfile="${bin}/Notes01.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="Notes01"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}/"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib}/junit.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib}/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+        </jar>
+    </target>
+
+  <!-- Main -->
+  <target name="build" depends="setup,compile,create_run_jar">
+  </target>
+
+</project>
+

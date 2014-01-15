@@ -16,7 +16,8 @@ from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880
 that you have just installed is on the PATH, and `javac Notes01.java` in order to 
 create `Notes01.class`.  `Notes01TestAmpersand01.class` contains some unit tests and isn't needed to export notes.  
 You can either `java Notes01 ...` or export `Notes01.jar`.
-A `build.xml` file is also provided for `ant` users; to use that place a copy of of `junit.jar` into the "lib" directory.  
+A `build.xml` file is also provided for `ant` users; to use that place a copy of of `junit.jar` and a hamcrest jar into 
+the "lib" directory.  
 
 
 Usage examples

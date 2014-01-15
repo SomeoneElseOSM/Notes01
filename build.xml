@@ -5,6 +5,7 @@
   <property name="lib" value="lib"/>
   <property name="bin" value="bin"/>
   <property name="src" value="src"/>
+  <property name="testsrc" value="test"/>
 
   <!-- Third party libraries needed if unit tests are to be run -->
   <property name="junit.jar" location="${lib}/junit.jar"/>
@@ -40,7 +41,28 @@
     </javac>
   </target>
 
+  <target name="compiletest" description="compilation">
+    <javac srcdir="${src}" destdir="${bin}" debug="yes" includeantruntime="false">
+      <include name="**/*.java"/>
+      <classpath refid="classpath"/>
+    </javac>
+    <javac srcdir="${testsrc}" destdir="${bin}" debug="yes" includeantruntime="false">
+      <include name="**/*.java"/>
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
     <target name="create_run_jar">
+        <jar destfile="${bin}/Notes01.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="Notes01"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${bin}/"/>
+        </jar>
+    </target>
+
+    <target name="create_test_jar">
         <jar destfile="${bin}/Notes01.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="Notes01"/>
@@ -52,7 +74,21 @@
         </jar>
     </target>
 
-  <!-- Main -->
+  <!-- 
+     Include libraries for Junit testing 
+
+     To run a unit test built this way do "ant buildtest" followed by:
+     java -cp Notes01.jar org.junit.runner.JUnitCore Notes01TestAmpersand01     
+    -->
+  <target name="buildtest" depends="setup,compiletest,create_test_jar">
+  </target>
+
+  <!-- 
+     Main 
+
+     Use "ant clean" followed by "ant build" to create a simple Notes01.class 
+     without any unit testing libraries.
+    -->
   <target name="build" depends="setup,compile,create_run_jar">
   </target>
 

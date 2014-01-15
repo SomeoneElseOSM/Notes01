@@ -8,16 +8,16 @@ Although the notes API http://wiki.openstreetmap.org/wiki/API_v0.6#Map_Notes_API
 allows a GPX file to be downloaded directly, it's not formatted in a way that can be understood by old Garmin GPSs.
 
 
-Building with Eclipse, java from the command line or ant
---------------------------------------------------------
+Building
+--------
 You can import it into Eclipse if you want to (although, given that it's only a couple of .java files, there's really no 
 need to).  If you're not using an IDE, install a JDK (e.g. 
 from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` 
 that you have just installed is on the PATH, and `javac Notes01.java` in order to 
 create `Notes01.class`.  `Notes01TestAmpersand01.class` contains some unit tests and isn't needed to export notes.  
 You can either `java Notes01 ...` or export `Notes01.jar`.
-A `build.xml` file is also provided for `ant` users; to use that place a copy of of `junit.jar` and a hamcrest jar into 
-the "lib" directory.  
+A `build.xml` file is also provided for `ant` users - `ant build` will create the .jar file.  To include support for 
+the unit tests in the jar, place a `junit.jar` and a hamcrest jar into the "lib" directory and use `ant buildtest` instead.   
 
 
 Usage examples

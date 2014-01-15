@@ -28,8 +28,7 @@ public class Notes01TestAmpersand01
 
 	private void testResolve_ampersands_string( String test1 )
 	{
-		Notes01 myNotes01 = new Notes01();
-		String test2 = myNotes01.resolve_ampersands( test1 );
+		String test2 = Notes01.resolve_ampersands( test1 );
 		testResolve_ampersands_string_test( test1, test2 );
 	}
 

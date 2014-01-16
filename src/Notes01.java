@@ -13,6 +13,8 @@ import org.w3c.dom.NodeList;
 
 public class Notes01 
 {
+	static final String git_id = "$Id$";
+	
 	static final String live_api_path = "http://openstreetmap.org/api/0.6/";
 	static final String dev_api_path = "http://api06.dev.openstreetmap.org/api/0.6/";
  

@@ -11,6 +11,7 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <file path="/Notes01/version.txt"/>
         <file path="/Notes01/README.md"/>
         <javaElement handleIdentifier="=Notes01/src"/>
     </selectedElements>

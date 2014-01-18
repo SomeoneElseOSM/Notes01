@@ -839,7 +839,7 @@ public class Notes01
 					{
 						System.out.println( "arg_symbol: [" + arg_symbol + "]" );
 					}
-				} // -limit
+				} // -symbol
 				
 /* ------------------------------------------------------------------------------
  * A bounding box that we're interesting in fetching notes from.

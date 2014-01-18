@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 
-public class Notes01TestAmpersand01 
+public class Notes01Test 
 {
 
 	@Test
@@ -18,7 +18,7 @@ public class Notes01TestAmpersand01
 	{
 		testResolve_ampersands_string( "wibble" );
 		testResolve_ampersands_string( "foo & bar" );
-		testResolve_ampersands_string( "foo & bar & baz" );
+		testResolve_ampersands_string( "foo & bar & bat" );
 		testResolve_ampersands_string( "foo && bar" );
 		testResolve_ampersands_string( "<cmt>Three bus stops here - one too many.  This one was originally across the road at http://www.openstreetmap.org/?mlat=53.16487 and mlon=-1.23164&zoom=18#map=18/53.16487/-1.23164 - need to check that there is a bus stop here outside the garage not the other side of Radmanthwaite Road.</cmt>" );
 		testResolve_ampersands_string( "" );

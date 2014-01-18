@@ -31,6 +31,7 @@ public class Notes01
 	final static String param_output_gpx = "-output_gpx=";
 	final static String param_output_txt = "-output_txt=";
 	final static String param_display_name = "-display_name=";
+	final static String param_uid = "-uid=";
 	final static String param_dev = "-dev";
 	final static String param_closed = "-closed=";
 	final static String param_limit = "-limit=";
@@ -101,7 +102,7 @@ public class Notes01
 		return return_string;
 	}
 	
-	private static void process_notes_xml( Node root_node, String passed_display_name, String passed_symbol )
+	private static void process_notes_xml( Node root_node, String passed_display_name, String passed_uid, String passed_symbol )
 	{
 		int osm_notes_found = 0;
 	
@@ -140,6 +141,7 @@ public class Notes01
 					Node lat_node = null;
 					Node lon_node = null;
 					boolean display_name_matches = false;
+					boolean uid_matches = false;
 					
 					if ( passed_display_name.equals( "" ))
 					{
@@ -148,6 +150,16 @@ public class Notes01
 						if ( arg_debug >= Log_Informational_2 )
 						{
 							System.out.println( "Blank display name; everything matches" );
+						}
+					}
+					
+					if ( passed_uid.equals( "" ))
+					{
+						uid_matches = true;
+						
+						if ( arg_debug >= Log_Informational_2 )
+						{
+							System.out.println( "Blank uid; everything matches" );
 						}
 					}
 					
@@ -334,14 +346,36 @@ public class Notes01
 														} // user
 														else
 														{
-															if ( !l4_item_type.equals( "#text" ))
+															if ( l4_item_type.equals( "uid" ))
 															{
-																if ( arg_debug >= Log_Informational_1 )
+																if ( passed_uid.equals( myGetNodeValue( this_l4_item )))
 																{
-																	System.out.println( "Comment: we're not interested in: " + l4_item_type );
+																	uid_matches = true;
+																	
+																	if ( arg_debug >= Log_Informational_2 )
+																	{
+																		System.out.println( "uid: " + myGetNodeValue( this_l4_item ) + " matches" );
+																	}
 																}
+																else
+																{
+																	if ( arg_debug >= Log_Informational_2 )
+																	{
+																		System.out.println( "uid: " + myGetNodeValue( this_l4_item ) + " does not match" );
+																	}
+																}
+															} // uid
+															else
+															{
+																if ( !l4_item_type.equals( "#text" ))
+																{
+																	if ( arg_debug >= Log_Informational_1 )
+																	{
+																		System.out.println( "Comment: we're not interested in: " + l4_item_type );
+																	}
+																} // something else
 															}
-														} // something else
+														}
 													}
 												}
 											}
@@ -369,7 +403,8 @@ public class Notes01
  *  if required.
  * ------------------------------------------------------------------------------------------------------------ */
 					if (( arg_out_gpx_file != ""   ) &&
-						( display_name_matches ))
+						( display_name_matches     ) &&
+						( uid_matches              ))
 					{
 						myGpxPrintStream.println( "<wpt lat=\"" + lat_node.getNodeValue() + "\" lon=\"" + lon_node.getNodeValue() + "\">" );
 						myGpxPrintStream.println( "<name>" + note_id + "</name>" );
@@ -380,7 +415,8 @@ public class Notes01
 					}
 					
 					if (( arg_out_txt_file != ""   ) &&
-						( display_name_matches ))
+						( display_name_matches     ) &&
+						( uid_matches              ))
 					{
 						myTxtPrintStream.println( note_id );
 						myTxtPrintStream.println( "==========" );
@@ -456,12 +492,13 @@ public class Notes01
 	}
 	
 
-	static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_symbol ) throws Exception
+	static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_uid, String passed_symbol ) throws Exception
 	{
 		if ( arg_debug >= Log_Informational_2 )
 		{
 			System.out.println( "passed_url: " + passed_url );
 			System.out.println( "passed_display_name: " + passed_display_name );
+			System.out.println( "passed_uid: " + passed_uid );
 			System.out.println( "passed_symbol: " + passed_symbol );
 		}
 		
@@ -489,12 +526,12 @@ public class Notes01
 	
 	    Document AJTdocument = AJTbuilder.parse( inputStream );
 	    Element AJTrootElement = AJTdocument.getDocumentElement();
-	    process_notes_xml( AJTrootElement, passed_display_name, passed_symbol );
+	    process_notes_xml( AJTrootElement, passed_display_name, passed_uid, passed_symbol );
 	
 	    input.close();
 	}
 
-	static void process_notes_file ( String passed_display_name, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception
+	static void process_notes_file ( String passed_display_name, String passed_uid, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception
 	{
 	    DocumentBuilderFactory AJTfactory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder AJTbuilder = AJTfactory.newDocumentBuilder();
@@ -502,11 +539,11 @@ public class Notes01
 	
 	    Document AJTdocument = AJTbuilder.parse( inputStream );
 	    Element AJTrootElement = AJTdocument.getDocumentElement();
-	    process_notes_xml( AJTrootElement, passed_display_name, passed_symbol );
+	    process_notes_xml( AJTrootElement, passed_display_name, passed_uid, passed_symbol );
 	}
 	
 	
-	static void process_notes( String passed_display_name, String passed_closed, String passed_limit, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception 
+	static void process_notes( String passed_display_name, String passed_uid, String passed_closed, String passed_limit, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception 
 	{
 		if ( arg_debug >= Log_Low_Routine_Start )
 		{
@@ -515,7 +552,7 @@ public class Notes01
 
 		URL url;
 		url = new URL( api_path + "notes?closed=0&closed=" + passed_closed + "&limit=" + passed_limit + "&bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string );
-		process_notes_url_common( url, passed_display_name, passed_symbol );
+		process_notes_url_common( url, passed_display_name, passed_uid, passed_symbol );
 	}
 	
 	static String get_line_param( String passed_param, String passed_in_line )
@@ -608,6 +645,7 @@ public class Notes01
  * param_output_txt = "-output_txt="; for the output_gpx TXT file
  * param_debug = "-debug="; 
  * param_display_name = "-display_name=";
+ * param_uid = "-uid=";
  * ------------------------------------------------------------------------------ */
 /**
  * @param args
@@ -615,6 +653,7 @@ public class Notes01
 	public static void main(String[] args) throws Exception 
 	{
 		String arg_display_name = "";
+		String arg_uid = "";
 		
 		for ( int i=0; i<args.length; i++ )
 		{
@@ -757,6 +796,20 @@ public class Notes01
 						System.out.println( "arg_display_name length: " + arg_display_name.length() );
 					}
 				} // -display_name
+				
+/* ------------------------------------------------------------------------------
+ * The user that we're interested in changesets for - uid
+ * ------------------------------------------------------------------------------ */
+				if ( args[i].startsWith( param_uid ))
+				{	
+					arg_uid = args[i].substring( param_uid.length() );
+					
+					if ( arg_debug >= Log_Informational_2 )
+					{
+						System.out.println( "arg_uid: " + arg_uid );
+						System.out.println( "arg_uid length: " + arg_uid.length() );
+					}
+				} // -uid
 				
 /* ------------------------------------------------------------------------------
  * Should we user the dev API?
@@ -964,49 +1017,45 @@ public class Notes01
  * Actually do what we've been asked to do.
  * ------------------------------------------------------------------------------ */
 		if ( !arg_bbox.equals( "" ))
-		    {
+	    {
 			if ( arg_in_file.equals( "" ))
-			    {
-				if ( arg_display_name.length() == 0 )
-				    {
-					process_notes( "", arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
-				    } // no display_name argument passed
-				else
-				    { // display_name passed.  
-					process_notes( arg_display_name, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
-				    } // display_name passed
-			    } // no "in" file
+		    {
+/* ------------------------------------------------------------------------------
+ * If wither of them are not passed, arg_display_name and arg_uid would be black.
+ * ------------------------------------------------------------------------------ */
+				process_notes( arg_display_name, arg_uid, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+		    } // no "in" file
 			else
-			    { // "in" file specified
+		    { // "in" file specified
 				if ( arg_in_file.equals( "!file" ))
+			    {
+					if ( arg_debug >= Log_Serious )
 				    {
-					if ( arg_debug >= Log_Informational_2 )
-					    {
 						System.out.println( "Input file could not be opened" );
-					    }
-				    }
-				else
-				    {
-					/* ------------------------------------------------------------------------------
-					 * We do have an input file defined and we have been able to open it.
-					 * ------------------------------------------------------------------------------ */
-
-					if ( arg_debug >= Log_Informational_2 )
-					    {
-						System.out.println( "Input file: " + arg_in_file );
-					    }
-
-					process_notes_file( arg_display_name, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
 				    }
 			    }
-		    } // arg_bbox
-		else
-		    {
-			if ( arg_debug >= Log_Error )
+				else
 			    {
-				System.out.println( "No bounding box defined." );
+/* ------------------------------------------------------------------------------
+ * We do have an input file defined and we have been able to open it.
+ * ------------------------------------------------------------------------------ */
+
+					if ( arg_debug >= Log_Informational_2 )
+				    {
+						System.out.println( "Input file: " + arg_in_file );
+				    }
+
+					process_notes_file( arg_display_name, arg_uid, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
 			    }
 		    }
+	    } // arg_bbox
+		else
+	    {
+			if ( arg_debug >= Log_Error )
+		    {
+				System.out.println( "No bounding box defined." );
+		    }
+	    }
 
 		
 /* ------------------------------------------------------------------------------

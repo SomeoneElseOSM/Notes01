@@ -11,6 +11,8 @@ Among other methods, it's possible to use GPSBabel to do the conversion:
 
     gpsbabel -i gpx -f generate_notes.gpx -o garmin_gpi,category="Some Name",notes -F generate_notes.gpi 
 
+In order to copy the file over:
+
 + Put the Garmin into mass storage mode.
 
 + Create a directory "Poi" below "Garmin" on the SD Card on your device

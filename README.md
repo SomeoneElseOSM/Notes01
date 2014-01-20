@@ -60,9 +60,6 @@ file that you can e.g. also email yourself for reference.
 
 Supported Parameters
 ---------------------
-### -help  
-Prints a basic "usage" screen.
-
 ### -input=some_input_file.txt
 Process notes from an input file Notes XML previously obtained from a server rather than making an API call.
 

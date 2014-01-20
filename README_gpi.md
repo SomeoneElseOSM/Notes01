@@ -11,11 +11,11 @@ Among other methods, it's possible to use GPSBabel to do the conversion:
 
     gpsbabel -i gpx -f generate_notes.gpx -o garmin_gpi,category="Some Name",notes -F generate_notes.gpi 
 
-Put the Garmin into mass storage mode.
++ Put the Garmin into mass storage mode.
 
-Create a directory "Poi" below "Garmin" on the SD Card on your device
++ Create a directory "Poi" below "Garmin" on the SD Card on your device
 
-Copy the notes file (in this case `generate_notes.gpi`) to that directory.
++ Copy the notes file (in this case `generate_notes.gpi`) to that directory.
 
 Where the resulting POIs appear on the menu will depend on the device.
 On my eTrex Vista HCx "Find / Custom Points of Interest" will find them.

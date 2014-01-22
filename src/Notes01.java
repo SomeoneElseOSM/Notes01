@@ -520,26 +520,26 @@ public class Notes01
 	        sb.append( new String( data, 0, len ));
 	    }   
 	
-	    DocumentBuilderFactory AJTfactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder AJTbuilder = AJTfactory.newDocumentBuilder();
+	    DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
 	    ByteArrayInputStream inputStream = new ByteArrayInputStream( sb.toString().getBytes( "UTF-8" ));
 	
-	    Document AJTdocument = AJTbuilder.parse( inputStream );
-	    Element AJTrootElement = AJTdocument.getDocumentElement();
-	    process_notes_xml( AJTrootElement, passed_display_name, passed_uid, passed_symbol );
+	    Document myDocument = myBuilder.parse( inputStream );
+	    Element rootElement = myDocument.getDocumentElement();
+	    process_notes_xml( rootElement, passed_display_name, passed_uid, passed_symbol );
 	
 	    input.close();
 	}
 
 	static void process_notes_file ( String passed_display_name, String passed_uid, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception
 	{
-	    DocumentBuilderFactory AJTfactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder AJTbuilder = AJTfactory.newDocumentBuilder();
+	    DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
 	    InputStream inputStream = new FileInputStream( myFile );
 	
-	    Document AJTdocument = AJTbuilder.parse( inputStream );
-	    Element AJTrootElement = AJTdocument.getDocumentElement();
-	    process_notes_xml( AJTrootElement, passed_display_name, passed_uid, passed_symbol );
+	    Document myDocument = myBuilder.parse( inputStream );
+	    Element rootElement = myDocument.getDocumentElement();
+	    process_notes_xml( rootElement, passed_display_name, passed_uid, passed_symbol );
 	}
 	
 	

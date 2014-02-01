@@ -17,7 +17,7 @@ public class Notes01
 	static final String dev_api_path = "http://api06.dev.openstreetmap.org/api/0.6/";
  
 	final static int Log_Debug_Off = 0;			// Used to turn debug off
-	final static int Log_Serious = 1;			// A serious error has occurred
+	final static int Log_Serious = 1;			// A serious error has occurred, or we always want to output something. 
 	final static int Log_Error = 2;				// An error that we can work around has occurred
 	final static int Log_Warning = 3;			// Not currently used
 	final static int Log_Return = 4; 			// Return values from top-level subroutines
@@ -42,7 +42,7 @@ public class Notes01
 	static String arg_in_file = "";				// -input=       Default to no input file
 	static String arg_out_gpx_file = "";		// -output_gpx=  No output GPX file default
 	static String arg_out_txt_file = "";		// -output_txt=  No output TXT file default
-	static int arg_debug = 0;					// -debug=       Default to no debug
+	static int arg_debug = Log_Serious;			// -debug=       Default to Log_Serious
 	static String arg_closed = "0";				// -closed=  	 Default to only showing open notes
 	static String arg_limit = "100";			// -limit=   	 Default to returning up to 100 notes
 	static String arg_symbol = "Shipwreck";		// -symbol=   	 The default Garmin symbol to use for created waypoints
@@ -101,6 +101,7 @@ public class Notes01
 		
 		return return_string;
 	}
+	
 	
 	private static void process_notes_xml( Node root_node, String passed_display_name, String passed_uid, String passed_symbol )
 	{
@@ -163,8 +164,6 @@ public class Notes01
 						}
 					}
 					
-					osm_notes_found++;
-	
 					NodeList level_2_xmlnodes = this_l1_item.getChildNodes();
 					int num_l2_xmlnodes = level_2_xmlnodes.getLength();
 	
@@ -173,9 +172,9 @@ public class Notes01
 						System.out.println( "L2 nodes found: " + num_l2_xmlnodes );
 					}
 	                    
-/* ------------------------------------------------------------------------------------------------------------
- * Items can have both attributes (e.g. "lon", "lat") and tags (XML child nodes) - process the attributes first. 
- * ------------------------------------------------------------------------------------------------------------ */
+					/* ------------------------------------------------------------------------------------------------------------
+					 * Items can have both attributes (e.g. "lon", "lat") and tags (XML child nodes) - process the attributes first. 
+					 * ------------------------------------------------------------------------------------------------------------ */
 					if ( this_l1_item.hasAttributes() )
 					{
 						NamedNodeMap item_attributes = this_l1_item.getAttributes();
@@ -220,10 +219,10 @@ public class Notes01
 
 						if ( l2_item_type.equals( "id" ))
 						{
-/* ------------------------------------------------------------------------------------------------------------
- * The note ID, which becomes the waypoint name on the device, is hardcoded here as "S N" + the OSM note
- * number.  The OSM note number is padded out to something like "<name>S N0084131</name>"
- * ------------------------------------------------------------------------------------------------------------ */
+							/* ------------------------------------------------------------------------------------------------------------
+							 * The note ID, which becomes the waypoint name on the device, is hardcoded here as "S N" + the OSM note
+							 * number.  The OSM note number is padded out to something like "<name>S N0084131</name>"
+							 * ------------------------------------------------------------------------------------------------------------ */
 							note_id = "S N" + String.format( "%07d", Integer.parseInt( myGetNodeValue( this_l2_item )));
 							
 							if ( arg_debug >= Log_Informational_2 )
@@ -287,17 +286,17 @@ public class Notes01
 												{
 													if ( l4_item_type.equals( "text" ))
 													{
-/* ------------------------------------------------------------------------------------------------------------
- * We only process the "opening" text currently (we're limited to 30 characters in any case)  
- * ------------------------------------------------------------------------------------------------------------ */
+														/* ------------------------------------------------------------------------------------------------------------
+														 * We only process the "opening" text currently (we're limited to 30 characters in any case)  
+														 * ------------------------------------------------------------------------------------------------------------ */
 														if ( comment_action.equals( "opened" ))
 														{
 															comment_open_text = myGetNodeValue( this_l4_item );
 															
-/* ------------------------------------------------------------------------------------------------------------
- * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
- * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
- * ------------------------------------------------------------------------------------------------------------ */
+															/* ------------------------------------------------------------------------------------------------------------
+															 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
+															 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
+															 * ------------------------------------------------------------------------------------------------------------ */
 															comment_open_text = resolve_ampersands( comment_open_text );
 
 /* ------------------------------------------------------------------------------------------------------------
@@ -396,12 +395,18 @@ public class Notes01
 						}
 					} // for cntr_2
 
-/* ------------------------------------------------------------------------------------------------------------
- * We've processed all attributes and child nodes; write out what we know about this note
- * 
- *  The symbol used currently defaults to "Shipwreck", but can easily be changed on the command line 
- *  if required.
- * ------------------------------------------------------------------------------------------------------------ */
+					/* ------------------------------------------------------------------------------------------------------------
+					 * We've processed all attributes and child nodes; write out what we know about this note
+					 * 
+					 *  The symbol used currently defaults to "Shipwreck", but can easily be changed on the command line 
+					 *  if required.
+					 * ------------------------------------------------------------------------------------------------------------ */
+					if (( display_name_matches     ) &&
+						( uid_matches              ))
+					{
+						osm_notes_found++;
+					}
+
 					if (( arg_out_gpx_file != ""   ) &&
 						( display_name_matches     ) &&
 						( uid_matches              ))
@@ -441,7 +446,7 @@ public class Notes01
 				myGpxPrintStream.println( "</gpx>" );
 			}
 
-			if ( arg_debug >= Log_Informational_1 )
+			if ( arg_debug >= Log_Serious )
 			{
 				System.out.println( "Notes found: " + osm_notes_found );
 			}
@@ -531,6 +536,7 @@ public class Notes01
 	    input.close();
 	}
 
+	
 	static void process_notes_file ( String passed_display_name, String passed_uid, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception
 	{
 	    DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
@@ -600,6 +606,7 @@ public class Notes01
 		return line_param;
 	}
 
+	
 /* ------------------------------------------------------------------------------
  * This is designed to look for the next comma, but that can be either "," or
  * "%2C" depending on where the bbox came from.  There are two methods - they
@@ -633,6 +640,7 @@ public class Notes01
 		return comma_pos;
 	}
 
+	
 /* ------------------------------------------------------------------------------
  * Data passed on the command line:
  * 
@@ -655,6 +663,8 @@ public class Notes01
 		String arg_display_name = "";
 		String arg_uid = "";
 		
+		arg_debug = Log_Serious;
+		
 		for ( int i=0; i<args.length; i++ )
 		{
 			if ( args[i].length() >= 2)
@@ -673,7 +683,7 @@ public class Notes01
  * effect during the processing of the other parameters.
  * ------------------------------------------------------------------------------ */
 				if ( args[i].startsWith( param_debug ))
-				{	
+				{
 					try
 					{
 						arg_debug = Integer.valueOf( args[i].substring( param_debug.length() ));
@@ -681,7 +691,7 @@ public class Notes01
 					catch( Exception ex )
 					{
 /* ------------------------------------------------------------------------------
- * Any failure above just means that we leave arg_debug at 0
+ * Any failure above just means that we leave arg_debug at Log_Serious
  * ------------------------------------------------------------------------------ */
 					}
 					

@@ -78,7 +78,7 @@ Specifies a user's userid to search for changesets for.
 Useful for when display names change, or when they contain characters that can't easily be passed from the command line.
 
 ### -dev
-Use the dev server ("api06.dev.openstreetmap.org") instead of the live one.
+Use the dev server (`api06.dev.openstreetmap.org`) instead of the live one.
  
 ### -debug=0
 A number between 0 and 8, used to control the amount of debug written to stdout as processing occurs.  

@@ -71,10 +71,10 @@ Specifies an output file into which a text about the notes can be written.  Desi
 it contains more information than the GPX because it's not subject to the size limits of GPX (or GPI) comments. 
 
 ### -display_name="Some User Name"
-Specifies a user's display name to search for changesets for.  It will be URLencoded before being passed to the API
+Specifies a user's display name to search for notes created by.  It will be URLencoded before being passed to the API
 
 ### -uid=112
-Specifies a user's userid to search for changesets for.  
+Specifies a user's userid to search for notes created by.  
 Useful for when display names change, or when they contain characters that can't easily be passed from the command line.
 
 ### -dev
@@ -94,7 +94,7 @@ Specifies the maximum number of entries returned. A value of between 1 and 10000
 Specifies the symbol to use when creating Garmin waypoints.
 
 ### -bbox=-2.123,52.809,-0.331,53.521
-The bounding box to check changesets against, in normal OSM format (west, south, east, north).  
+The bounding box to check notes against, in normal OSM format (west, south, east, north).  
 
 
 

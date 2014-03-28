@@ -1031,7 +1031,7 @@ public class Notes01
 			if ( arg_in_file.equals( "" ))
 		    {
 /* ------------------------------------------------------------------------------
- * If wither of them are not passed, arg_display_name and arg_uid would be black.
+ * If either of them are not passed, arg_display_name and arg_uid would be black.
  * ------------------------------------------------------------------------------ */
 				process_notes( arg_display_name, arg_uid, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
 		    } // no "in" file

@@ -221,7 +221,10 @@ public class Notes01
 						{
 							/* ------------------------------------------------------------------------------------------------------------
 							 * The note ID, which becomes the waypoint name on the device, is hardcoded here as "S N" + the OSM note
-							 * number.  The OSM note number is padded out to something like "<name>S N0084131</name>"
+							 * number.  The OSM note number is padded out to something like "<name>S N0278181</name>"
+							 * 
+							 * This will become an issue when OSM note numbers go over 9,999,999.  Currently OSM is on target to have a 
+							 * million notes in 6 years, so that's still some way off.
 							 * ------------------------------------------------------------------------------------------------------------ */
 							note_id = "S N" + String.format( "%07d", Integer.parseInt( myGetNodeValue( this_l2_item )));
 							
@@ -297,7 +300,7 @@ public class Notes01
 															 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
 															 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
 															 * ------------------------------------------------------------------------------------------------------------ */
-															comment_open_text = resolve_ampersands( comment_open_text );
+															comment_open_text = replace_all_escape_characters( comment_open_text );
 
 /* ------------------------------------------------------------------------------------------------------------
  * The actual "note" on the Garmin device itself will be truncated after 30 characters.  
@@ -467,30 +470,65 @@ public class Notes01
  * 
  * A future option may be to use e.g.
  * http://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringEscapeUtils.html
- * but I'm not aware yet of anything other than ampersand that causes problems, so haven't done that yet. 
+ * 
+ * Issue 1 (https://github.com/SomeoneElseOSM/Notes01/issues/1) has spotted that other characters cause problems
+ * too.  I therefore need to follow: 
+ * http://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
+ * and generalise the replacement of problem characters.
+ * 
+ * Confusingly Mapsource (at least, not sure about GPS Babel et al) doesn't honour XML escaping:
+ * qqqdo
  * ------------------------------------------------------------------------------------------------------------ */
-	static String resolve_ampersands( String comment_open_text ) 
+	static String replace_all_escape_characters( String comment_open_text ) 
 	{
-		String ampersand_replacement = "&amp;";
+		/* ------------------------------------------------------------------------------------------------------------
+		 * Escape & first so that we don't replace any of the & that we introduce in out replacements.
+		 * ------------------------------------------------------------------------------------------------------------ */
+		char problem_char = '&';
+		String problem_replacement = "&amp;";
+		String result_text = replace_one_escape_character( comment_open_text, problem_char, problem_replacement );
+
+		problem_char = '"';
+		problem_replacement = "&quot;";
+		result_text = replace_one_escape_character( result_text, problem_char, problem_replacement );
+
+		problem_char = '<';
+		problem_replacement = "&lt;";
+		result_text = replace_one_escape_character( result_text, problem_char, problem_replacement );
+
+		problem_char = '\'';
+		problem_replacement = "&apos;";
+		result_text = replace_one_escape_character( result_text, problem_char, problem_replacement );
+
+		problem_char = '>';
+		problem_replacement = "&gt;";
+		result_text = replace_one_escape_character( result_text, problem_char, problem_replacement );
+
+		return result_text;
+	}
+	
+	
+	static String replace_one_escape_character( String comment_open_text, char problem_char, String problem_replacement )
+	{
 		String result_text = comment_open_text;
 
-		int i = result_text.indexOf( '&' );
+		int i = result_text.indexOf( problem_char );
 		
 		while ( i != -1 )
 		{
 			if ( i == 0 )
 			{
-				result_text = ampersand_replacement + result_text.substring( i+1 ); 
+				result_text = problem_replacement + result_text.substring( i+1 ); 
 			}
 			else
 			{
-				result_text = result_text.substring( 0, i ) + ampersand_replacement + result_text.substring( i+1 ); 
+				result_text = result_text.substring( 0, i ) + problem_replacement + result_text.substring( i+1 ); 
 			}
 
 /* ------------------------------------------------------------------------------------------------------------
  * Start searching for any text after the "&amp;" that we have just added.
  * ------------------------------------------------------------------------------------------------------------ */
-			i = result_text.indexOf( '&', i + ampersand_replacement.length() );
+			i = result_text.indexOf( problem_char, i + problem_replacement.length() );
 		}
 
 		return result_text;

@@ -13,6 +13,11 @@ public class Notes01Test
  * that the result strings have "&amp;" where the original strings had just "&".
  * 
  * The test strings chosen are ones "likely to cause a problem".
+ * 
+ * NOTE:  This test needs reworking to (a) check for replacement of the other
+ * characters that "replace_all_escape_characters" replaces and (b) not just
+ * check ampersand offset (which will be different if there's other replaced
+ * characters before it).
  * ------------------------------------------------------------------------------ */
 	public void testResolve_ampersands() 
 	{
@@ -20,7 +25,7 @@ public class Notes01Test
 		testResolve_ampersands_string( "foo & bar" );
 		testResolve_ampersands_string( "foo & bar & bat" );
 		testResolve_ampersands_string( "foo && bar" );
-		testResolve_ampersands_string( "<cmt>Three bus stops here - one too many.  This one was originally across the road at http://www.openstreetmap.org/?mlat=53.16487 and mlon=-1.23164&zoom=18#map=18/53.16487/-1.23164 - need to check that there is a bus stop here outside the garage not the other side of Radmanthwaite Road.</cmt>" );
+		testResolve_ampersands_string( "Three bus stops here - one too many.  This one was originally across the road at http://www.openstreetmap.org/?mlat=53.16487 and mlon=-1.23164&zoom=18#map=18/53.16487/-1.23164 - need to check that there is a bus stop here outside the garage not the other side of Radmanthwaite Road." );
 		testResolve_ampersands_string( "" );
 		testResolve_ampersands_string( "&" );
 		testResolve_ampersands_string( "&&" );
@@ -28,7 +33,7 @@ public class Notes01Test
 
 	private void testResolve_ampersands_string( String test1 )
 	{
-		String test2 = Notes01.resolve_ampersands( test1 );
+		String test2 = Notes01.replace_all_escape_characters( test1 );
 		testResolve_ampersands_string_test( test1, test2 );
 	}
 
@@ -45,6 +50,12 @@ public class Notes01Test
  * ------------------------------------------------------------------------------ */
 		int i1 = test1.indexOf( "&" );
 		int i2 = test2.indexOf( "&amp;" );
+		System.out.println();
+		System.out.println( test1 );
+		System.out.println( i1 );
+		System.out.println( test2 );
+		System.out.println( i2 );
+
 		assertEquals( i1,  i2 );
 		
 /* ------------------------------------------------------------------------------

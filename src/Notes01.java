@@ -15,7 +15,10 @@ public class Notes01
 {
 	static final String live_api_path = "http://openstreetmap.org/api/0.6/";
 	static final String dev_api_path = "http://api06.dev.openstreetmap.org/api/0.6/";
- 
+
+	static final String de_overpass_path = "http://overpass-api.de/api/";
+	static final String ru_overpass_path = "http://overpass.osm.rambler.ru/cgi/";
+
 	final static int Log_Debug_Off = 0;			// Used to turn debug off
 	final static int Log_Serious = 1;			// A serious error has occurred, or we always want to output something. 
 	final static int Log_Error = 2;				// An error that we can work around has occurred
@@ -26,19 +29,40 @@ public class Notes01
 	final static int Log_Low_Routine_Start = 7; // low-level routing start code
 	final static int Log_Informational_2 = 8;	// Any other informational stuff
 
+	/* ------------------------------------------------------------------------------
+	 * Parameters common to both API notes and "fixme" tags
+	 * ------------------------------------------------------------------------------ */
 	final static String param_debug = "-debug=";
-	final static String param_input = "-input=";
 	final static String param_output_gpx = "-output_gpx=";
 	final static String param_output_txt = "-output_txt=";
-	final static String param_display_name = "-display_name=";
-	final static String param_uid = "-uid=";
-	final static String param_dev = "-dev";
-	final static String param_closed = "-closed=";
-	final static String param_limit = "-limit=";
-	final static String param_note_symbol = "-note_symbol=";
 	final static String param_bbox = "-bbox=";	// Unlike Changeset1 the is passed to the API
+	final static String param_do_notes = "-do_notes";
+	final static String param_do_fixmes = "-do_fixmes";
 
-	static String api_path = live_api_path;		// 				 Defaults to live API
+	/* ------------------------------------------------------------------------------
+	 * Parameters only relevant to API notes
+	 * ------------------------------------------------------------------------------ */
+	final static String param_notes_input = "-notes_input=";
+	final static String param_notes_closed = "-notes_closed=";
+	final static String param_notes_limit = "-notes_limit=";
+	final static String param_notes_symbol = "-notes_symbol=";
+	final static String param_display_name = "-notes_display_name=";
+	final static String param_notes_uid = "-notes_uid=";
+	final static String param_notes_dev = "-notes_dev";
+
+	/* ------------------------------------------------------------------------------
+	 * Parameters only relevant to "fixme" tags
+	 * ------------------------------------------------------------------------------ */
+
+	/* ------------------------------------------------------------------------------
+	 * Other settings, including default values for the above.
+	 * ------------------------------------------------------------------------------ */
+	static String actual_api_path = live_api_path;				// Defaults to live API
+	static String actual_overpass_path = de_overpass_path;		// Defaults to Germany
+
+	static boolean arg_do_notes = false;
+	static boolean arg_do_fixmes = false;
+
 	static String arg_in_file = "";				// -input=       Default to no input file
 	static String arg_out_gpx_file = "";		// -output_gpx=  No output GPX file default
 	static String arg_out_txt_file = "";		// -output_txt=  No output TXT file default
@@ -103,6 +127,234 @@ public class Notes01
 	}
 	
 	
+	private static void process_fixmes_xml( Node root_node, String passed_symbol )
+	{
+		int osm_fixmes_found = 0;
+
+		if ( root_node.getNodeType() == Node.ELEMENT_NODE ) 
+		{
+			NodeList level_1_xmlnodes = root_node.getChildNodes();
+			int num_l1_xmlnodes = level_1_xmlnodes.getLength();
+	
+			if ( arg_debug >= Log_Informational_2 )
+			{
+				System.out.println( "Fixmes L1 nodes found: " + num_l1_xmlnodes );
+			}
+	
+			/* ------------------------------------------------------------------------------------------------------------
+			 * Iterate through the OSM data looking for fixmes
+			 * ------------------------------------------------------------------------------------------------------------ */
+			for ( int cntr_1 = 0; cntr_1 < num_l1_xmlnodes; ++cntr_1 ) 
+			{
+				Node this_l1_item = level_1_xmlnodes.item( cntr_1 );
+				String l1_item_type = this_l1_item.getNodeName();
+	
+				/* ------------------------------------------------------------------------------------------------------------
+				 * We're expecting "node", "way", "relation" here, or stuff that we're not interested in such as "meta"
+				 * ------------------------------------------------------------------------------------------------------------ */
+				if ( l1_item_type.equals( "node" ))
+				{
+					String fixme_id = ""; 
+					String fixme_text = ""; 
+					Node id_node = null;
+					Node lat_node = null;
+					Node lon_node = null;
+					boolean fixme_found = false;
+					
+					NodeList level_2_xmlnodes = this_l1_item.getChildNodes();
+					int num_l2_xmlnodes = level_2_xmlnodes.getLength();
+	
+					if ( arg_debug >= Log_Informational_2 )
+					{
+						System.out.println( "L2 nodes found: " + num_l2_xmlnodes );
+					}
+	                    
+					/* ------------------------------------------------------------------------------------------------------------
+					 * OSM nodes items can have both attributes (e.g. "lon", "lat") and tags (XML child nodes) - process the 
+					 * attributes first. 
+					 * ------------------------------------------------------------------------------------------------------------ */
+					if ( this_l1_item.hasAttributes() )
+					{
+						NamedNodeMap item_attributes = this_l1_item.getAttributes();
+						id_node = item_attributes.getNamedItem( "id" );
+						lat_node = item_attributes.getNamedItem( "lat" );
+						lon_node = item_attributes.getNamedItem( "lon" );
+
+						if ( id_node == null )
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "No node id found" );
+							}
+			            }
+						else
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "Id: " + id_node.getNodeValue() );
+							}
+						}
+
+						/* ------------------------------------------------------------------------------------------------------------
+						 * We need to make the fixme_id here unique.  Using the full OSM node id here isn't a problem - it is not
+						 * too long. 
+						 * ------------------------------------------------------------------------------------------------------------ */
+						fixme_id = "S FN" + id_node.getNodeValue();
+						
+						if ( arg_debug >= Log_Informational_2 )
+						{
+							System.out.println( "fixme_id: " + fixme_id );
+						}
+
+						if ( lat_node == null )
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "No node lat found" );
+							}
+			            }
+						else
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "Lat: " + lat_node.getNodeValue() );
+							}
+						}
+
+						if ( lon_node == null )
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "No node lon found" );
+							}
+			            }
+						else
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "Lon: " + lon_node.getNodeValue() );
+							}
+						}
+					} // attributes
+
+					for ( int cntr_2 = 0; cntr_2 < num_l2_xmlnodes; ++cntr_2 ) 
+					{
+						Node this_l2_item = level_2_xmlnodes.item( cntr_2 );
+						String l2_item_type = this_l2_item.getNodeName();
+
+						if ( l2_item_type.equals( "tag" ))
+						{
+							NamedNodeMap item_attributes = this_l2_item.getAttributes();
+							Node key_node = item_attributes.getNamedItem( "k" );
+							Node value_node = item_attributes.getNamedItem( "v" );
+							
+							if ( key_node == null )
+							{
+								System.out.println( "Download tag/value processing: No key found" );
+								/* ------------------------------------------------------------------------------------------------------------
+								 * If we haven't found a tag name don't bother looking for a value. 
+								 * ------------------------------------------------------------------------------------------------------------ */
+							}
+							else
+							{ // we have at least a key
+								if ( arg_debug >= Log_Informational_2 )
+								{
+									System.out.println( "tag_key: " + key_node.getNodeValue() );
+								}
+
+								/* ------------------------------------------------------------------------------------------------------------
+								 * We have found a tag name - check the value. 
+								 * ------------------------------------------------------------------------------------------------------------ */
+								if ( value_node == null )
+								{
+									System.out.println( "Download tag/value processing: No value found" );
+								}
+								else
+								{ // we have both a key and a value
+									if ( arg_debug >= Log_Informational_2 )
+									{
+										System.out.println( "tag_value: " + value_node.getNodeValue() );
+									}
+									
+									if ( key_node.getNodeValue().equals( "fixme" ))
+									{
+										fixme_found = true;
+										/* ------------------------------------------------------------------------------------------------------------
+										 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
+										 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
+										 * ------------------------------------------------------------------------------------------------------------ */
+										fixme_text = replace_all_escape_characters( value_node.getNodeValue() );
+									}
+								}
+							}
+						} // tag
+						else
+						{
+							if ( l2_item_type != "#text" )
+							{
+								System.out.println( "Fixme: we're not currently interested in: " + l2_item_type );
+							}
+						}
+					} // for cntr_2
+
+					/* ------------------------------------------------------------------------------------------------------------
+					 * We've processed all attributes and child nodes; write out what we know about this note
+					 * 
+					 *  The symbol used currently defaults to "Shipwreck", but can easily be changed on the command line 
+					 *  if required.
+					 * ------------------------------------------------------------------------------------------------------------ */
+					if ( fixme_found )
+					{
+						osm_fixmes_found++;
+					}
+
+					if (( arg_out_gpx_file != ""   ) &&
+						( fixme_found              ))
+					{
+						myGpxPrintStream.println( "<wpt lat=\"" + lat_node.getNodeValue() + "\" lon=\"" + lon_node.getNodeValue() + "\">" );
+						myGpxPrintStream.println( "<name>" + fixme_id + "</name>" );
+						myGpxPrintStream.println( "<cmt>" + fixme_text + "</cmt>" );
+						myGpxPrintStream.println( "<desc>" + fixme_text + "</desc>" );
+						myGpxPrintStream.println( "<sym>" + passed_symbol + "</sym>" );
+						myGpxPrintStream.println( "</wpt>" );
+					}
+					
+					if (( arg_out_txt_file != ""   ) &&
+						( fixme_found              ))
+					{
+						myTxtPrintStream.println( fixme_id );
+						myTxtPrintStream.println( "==========" );
+						myTxtPrintStream.println( fixme_text );
+						myTxtPrintStream.println( "" );
+					}					
+				} // node
+				else
+				{ // !node
+					if ( l1_item_type != "#text" )
+					{
+						if ( arg_debug >= Log_Informational_1 )
+						{
+							System.out.println( "Node " + cntr_1 + ": " + l1_item_type );
+						}
+					}
+				} // !note
+			} // for L1 nodes
+
+			if ( arg_debug >= Log_Serious )
+			{
+				System.out.println( "Fixmes found: " + osm_fixmes_found );
+			}
+		}
+		else
+		{
+			if ( arg_debug >= Log_Error )
+			{
+				System.out.println( "XML Parsing Error - element node expected" );
+			}
+		}
+	}
+	
+	
 	private static void process_notes_xml( Node root_node, String passed_display_name, String passed_uid, String passed_symbol )
 	{
 		int osm_notes_found = 0;
@@ -117,18 +369,9 @@ public class Notes01
 				System.out.println( "Notes L1 nodes found: " + num_l1_xmlnodes );
 			}
 	
-/* ------------------------------------------------------------------------------------------------------------
- * Write the GPX header acceptable to a Garmin GPS
- * ------------------------------------------------------------------------------------------------------------ */
-			if ( arg_out_gpx_file != "" )
-			{
-				myGpxPrintStream.println( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>" );
-				myGpxPrintStream.println( "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.13.7\" version=\"1.1\">" );
-			}
-
-/* ------------------------------------------------------------------------------------------------------------
- * Iterate through the notes 
- * ------------------------------------------------------------------------------------------------------------ */
+			/* ------------------------------------------------------------------------------------------------------------
+			 * Iterate through the notes 
+			 * ------------------------------------------------------------------------------------------------------------ */
 			for ( int cntr_1 = 0; cntr_1 < num_l1_xmlnodes; ++cntr_1 ) 
 			{
 				Node this_l1_item = level_1_xmlnodes.item( cntr_1 );
@@ -444,11 +687,6 @@ public class Notes01
 				} // !note
 			} // for L1 nodes
 
-			if ( arg_out_gpx_file != "" )
-			{
-				myGpxPrintStream.println( "</gpx>" );
-			}
-
 			if ( arg_debug >= Log_Serious )
 			{
 				System.out.println( "Notes found: " + osm_notes_found );
@@ -531,6 +769,42 @@ public class Notes01
 		return result_text;
 	}
 	
+	static void process_fixmes_url_common ( URL passed_url, String passed_symbol ) throws Exception
+	{
+		if ( arg_debug >= Log_Informational_2 )
+		{
+			System.out.println( "passed_url: " + passed_url );
+			System.out.println( "passed_symbol: " + passed_symbol );
+		}
+		
+		InputStreamReader input;
+		
+		URLConnection urlConn = passed_url.openConnection();
+		urlConn.setDoInput( true );
+		urlConn.setDoOutput( false );
+		urlConn.setUseCaches( false );
+	
+		input = new InputStreamReader( urlConn.getInputStream() );
+	
+	    char[] data = new char[ 256 ];
+	    int len = 0;
+		StringBuffer sb = new StringBuffer();		
+	
+	    while ( -1 != ( len = input.read( data, 0, 255 )) )
+	    {
+	        sb.append( new String( data, 0, len ));
+	    }   
+	
+	    DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
+	    ByteArrayInputStream inputStream = new ByteArrayInputStream( sb.toString().getBytes( "UTF-8" ));
+	
+	    Document myDocument = myBuilder.parse( inputStream );
+	    Element rootElement = myDocument.getDocumentElement();
+	    process_fixmes_xml( rootElement, passed_symbol );
+	
+	    input.close();
+	}
 
 	static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_uid, String passed_symbol ) throws Exception
 	{
@@ -584,6 +858,23 @@ public class Notes01
 	}
 	
 	
+	static void process_fixmes( String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception 
+	{
+		if ( arg_debug >= Log_Low_Routine_Start )
+		{
+			System.out.println( "process_all_fixmes" );
+		}
+
+		URL url;
+		/* ------------------------------------------------------------------------------
+		 * "?node" below just asks for nodes from Overpass.  Eventually qqq we'll
+		 * want to use "?*" to ask for nodes, ways and relations. 
+		 * ------------------------------------------------------------------------------ */
+		url = new URL( actual_overpass_path + "xapi?node[bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string + "][fixme=*]" );
+		process_fixmes_url_common( url, passed_symbol );
+	}
+	
+	
 	static void process_notes( String passed_display_name, String passed_uid, String passed_closed, String passed_limit, String passed_symbol, String passed_min_lat_string, String passed_min_lon_string, String passed_max_lat_string, String passed_max_lon_string ) throws Exception 
 	{
 		if ( arg_debug >= Log_Low_Routine_Start )
@@ -592,7 +883,7 @@ public class Notes01
 		}
 
 		URL url;
-		url = new URL( api_path + "notes?closed=0&closed=" + passed_closed + "&limit=" + passed_limit + "&bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string );
+		url = new URL( actual_api_path + "notes?closed=0&closed=" + passed_closed + "&limit=" + passed_limit + "&bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string );
 		process_notes_url_common( url, passed_display_name, passed_uid, passed_symbol );
 	}
 	
@@ -680,7 +971,7 @@ public class Notes01
  * Data passed on the command line:
  * 
  * param_bbox = "-bbox=";
- * param_dev = "-dev";
+ * param_dev = "-notes_dev";
  * param_limit = "-limit="; defaults to 100
  * param_closed = "-closed="; defaults to 0 days (unlike the API)
  * param_input = "-input="; for testing of a previously wget-obtained file.
@@ -736,15 +1027,41 @@ public class Notes01
 					}
 				} // -debug
 				
+				/* ------------------------------------------------------------------------------
+				 * Should we user the dev API to fetch OSM Notes?
+				 * ------------------------------------------------------------------------------ */
+				if ( args[i].startsWith( param_do_notes ))
+				{	
+					arg_do_notes = true;
+					
+					if ( arg_debug >= Log_Informational_2 )
+					{
+						System.out.println( "We will process OSM notes" );
+					}
+				} // -do_notes
+				
+				/* ------------------------------------------------------------------------------
+				 * Should we user the dev API to fetch Overpass fixmes?
+				 * ------------------------------------------------------------------------------ */
+				if ( args[i].startsWith( param_do_fixmes ))
+				{	
+					arg_do_fixmes = true;
+					
+					if ( arg_debug >= Log_Informational_2 )
+					{
+						System.out.println( "We will process Overpass fixmes" );
+					}
+				} // -do_fixmes
+				
 /* ------------------------------------------------------------------------------
  * Input file
  * 
  * If specified Notes01 will read from an input file rather than fetching from an API.
  * Mainly designed to be used for testing.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_input ))
+				if ( args[i].startsWith( param_notes_input ))
 				{	
-					arg_in_file = args[i].substring( param_input.length() );
+					arg_in_file = args[i].substring( param_notes_input.length() );
 
 					try
 					{
@@ -846,9 +1163,9 @@ public class Notes01
 /* ------------------------------------------------------------------------------
  * The user that we're interested in changesets for - uid
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_uid ))
+				if ( args[i].startsWith( param_notes_uid ))
 				{	
-					arg_uid = args[i].substring( param_uid.length() );
+					arg_uid = args[i].substring( param_notes_uid.length() );
 					
 					if ( arg_debug >= Log_Informational_2 )
 					{
@@ -858,28 +1175,28 @@ public class Notes01
 				} // -uid
 				
 /* ------------------------------------------------------------------------------
- * Should we user the dev API?
+ * Should we user the dev API to fetch OSM Notes?
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_dev ))
+				if ( args[i].startsWith( param_notes_dev ))
 				{	
-					api_path = dev_api_path;
+					actual_api_path = dev_api_path;
 					
 					if ( arg_debug >= Log_Informational_2 )
 					{
 						System.out.println( "Dev server will be used" );
 					}
-				} // -dev
+				} // -notes_dev
 				
 /* ------------------------------------------------------------------------------
  * Should we return closed notes, and if so how many days old?
  * Our default for this is 0 (don't return closed notes) which differs from the
  * API default of 7.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_closed ))
+				if ( args[i].startsWith( param_notes_closed ))
 				{	
 					try
 					{
-						arg_closed = args[i].substring( param_closed.length() );
+						arg_closed = args[i].substring( param_notes_closed.length() );
 					}
 					catch( Exception ex )
 					{
@@ -898,11 +1215,11 @@ public class Notes01
  * Limit the total number of notes returned.  If unset up to 100 are returned
  * ( which is also the API default). 
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_limit ))
+				if ( args[i].startsWith( param_notes_limit ))
 				{	
 					try
 					{
-						arg_limit = args[i].substring( param_limit.length() );
+						arg_limit = args[i].substring( param_notes_limit.length() );
 					}
 					catch( Exception ex )
 					{
@@ -921,11 +1238,11 @@ public class Notes01
  * What Garmin symbol should be used?  If unset the default "Shipwreck" is used.
  * Note that Garmin symbols with spaces in aren't supported yet.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_note_symbol ))
+				if ( args[i].startsWith( param_notes_symbol ))
 				{	
 					try
 					{
-						arg_symbol = args[i].substring( param_note_symbol.length() );
+						arg_symbol = args[i].substring( param_notes_symbol.length() );
 					}
 					catch( Exception ex )
 					{
@@ -1064,39 +1381,67 @@ public class Notes01
  * ------------------------------------------------------------------------------ */
 		if ( !arg_bbox.equals( "" ))
 	    {
-			if ( arg_in_file.equals( "" ))
-		    {
-/* ------------------------------------------------------------------------------
- * If either of them are not passed, arg_display_name and arg_uid would be black.
- * ------------------------------------------------------------------------------ */
-				process_notes( arg_display_name, arg_uid, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
-		    } // no "in" file
-			else
-		    { // "in" file specified
-				if ( arg_in_file.equals( "!file" ))
+			/* ------------------------------------------------------------------------------------------------------------
+			 * Write the GPX header acceptable to a Garmin GPS
+			 * ------------------------------------------------------------------------------------------------------------ */
+			if ( arg_out_gpx_file != "" )
+			{
+				myGpxPrintStream.println( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>" );
+				myGpxPrintStream.println( "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"MapSource 6.13.7\" version=\"1.1\">" );
+			}
+			
+			if ( arg_do_notes )
+			{
+				if ( arg_in_file.equals( "" ))
 			    {
-					if ( arg_debug >= Log_Serious )
-				    {
-						System.out.println( "Input file could not be opened" );
-				    }
-			    }
+					/* ------------------------------------------------------------------------------
+					 * If either of them are not passed, arg_display_name and arg_uid would be black.
+					 * ------------------------------------------------------------------------------ */
+					process_notes( arg_display_name, arg_uid, arg_closed, arg_limit, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+			    } // no "in" file
 				else
-			    {
-/* ------------------------------------------------------------------------------
- * We do have an input file defined and we have been able to open it.
- * ------------------------------------------------------------------------------ */
-
-					if ( arg_debug >= Log_Informational_2 )
+			    { // "in" file specified
+					if ( arg_in_file.equals( "!file" ))
 				    {
-						System.out.println( "Input file: " + arg_in_file );
+						if ( arg_debug >= Log_Serious )
+					    {
+							System.out.println( "Input file could not be opened" );
+					    }
 				    }
+					else
+				    {
+						/* ------------------------------------------------------------------------------
+						 * We do have an input file defined and we have been able to open it.
+						 * ------------------------------------------------------------------------------ */
 
-					process_notes_file( arg_display_name, arg_uid, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+						if ( arg_debug >= Log_Informational_2 )
+					    {
+							System.out.println( "Input file: " + arg_in_file );
+					    }
+
+						process_notes_file( arg_display_name, arg_uid, arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+				    }
 			    }
-		    }
+			} // arg_do_notes
+			
+			if ( arg_do_fixmes )
+			{
+				process_fixmes( arg_symbol, arg_min_lat_string, arg_min_lon_string, arg_max_lat_string, arg_max_lon_string );
+			} // arg_do_fixmes
+			
+			/* ------------------------------------------------------------------------------
+			 * Write trailer for the GPX file if necessary
+			 * ------------------------------------------------------------------------------ */
+			if ( arg_out_gpx_file != "" )
+			{
+				myGpxPrintStream.println( "</gpx>" );
+			}
 	    } // arg_bbox
 		else
 	    {
+			/* ------------------------------------------------------------------------------
+			 * If no bounding box has been passed, we can't do anything.
+			 * ------------------------------------------------------------------------------ */
 			if ( arg_debug >= Log_Error )
 		    {
 				System.out.println( "No bounding box defined." );

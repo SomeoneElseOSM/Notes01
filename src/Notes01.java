@@ -35,7 +35,7 @@ public class Notes01
 	final static String param_dev = "-dev";
 	final static String param_closed = "-closed=";
 	final static String param_limit = "-limit=";
-	final static String param_symbol = "-symbol=";
+	final static String param_note_symbol = "-note_symbol=";
 	final static String param_bbox = "-bbox=";	// Unlike Changeset1 the is passed to the API
 
 	static String api_path = live_api_path;		// 				 Defaults to live API
@@ -740,6 +740,7 @@ public class Notes01
  * Input file
  * 
  * If specified Notes01 will read from an input file rather than fetching from an API.
+ * Mainly designed to be used for testing.
  * ------------------------------------------------------------------------------ */
 				if ( args[i].startsWith( param_input ))
 				{	
@@ -920,11 +921,11 @@ public class Notes01
  * What Garmin symbol should be used?  If unset the default "Shipwreck" is used.
  * Note that Garmin symbols with spaces in aren't supported yet.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_symbol ))
+				if ( args[i].startsWith( param_note_symbol ))
 				{	
 					try
 					{
-						arg_symbol = args[i].substring( param_symbol.length() );
+						arg_symbol = args[i].substring( param_note_symbol.length() );
 					}
 					catch( Exception ex )
 					{

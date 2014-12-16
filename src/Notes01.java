@@ -475,9 +475,6 @@ public class Notes01
  * too.  I therefore need to follow: 
  * http://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
  * and generalise the replacement of problem characters.
- * 
- * Confusingly Mapsource (at least, not sure about GPS Babel et al) doesn't honour XML escaping:
- * qqqdo
  * ------------------------------------------------------------------------------------------------------------ */
 	static String replace_all_escape_characters( String comment_open_text ) 
 	{

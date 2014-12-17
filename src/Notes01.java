@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.Hashtable;
 
 import javax.xml.parsers.*;
 
@@ -83,6 +84,8 @@ public class Notes01
 	static PrintStream myGpxPrintStream;
 	static PrintStream myTxtPrintStream;
 
+	private static Hashtable<String, String> osmLatHash;
+	private static Hashtable<String, String> osmLonHash;
 	
 	private static String myGetNodeValue( Node passed_node )
 	{
@@ -141,6 +144,9 @@ public class Notes01
 				System.out.println( "Fixmes L1 nodes found: " + num_l1_xmlnodes );
 			}
 	
+			osmLatHash = new Hashtable<String, String>();
+			osmLonHash = new Hashtable<String, String>();
+			
 			/* ------------------------------------------------------------------------------------------------------------
 			 * Iterate through the OSM data looking for fixmes
 			 * ------------------------------------------------------------------------------------------------------------ */
@@ -191,7 +197,7 @@ public class Notes01
 						{
 							if ( arg_debug >= Log_Informational_1 )
 							{
-								System.out.println( "Id: " + id_node.getNodeValue() );
+								System.out.println( "Node Id: " + id_node.getNodeValue() );
 							}
 						}
 
@@ -237,6 +243,20 @@ public class Notes01
 						}
 					} // attributes
 
+					/* ------------------------------------------------------------------------------------------------------------
+					 * If we have a valid node ID, lat and lon store in hash tables. 
+					 * ------------------------------------------------------------------------------------------------------------ */
+					if (( id_node  != null ) &&
+						( lat_node != null ) &&
+						( lon_node != null ))
+					{
+						osmLatHash.put( id_node.getNodeValue(), lat_node.getNodeValue() );
+						osmLonHash.put( id_node.getNodeValue(), lon_node.getNodeValue() );
+					}
+
+					/* ------------------------------------------------------------------------------------------------------------
+					 * Now process the XML child nodes 
+					 * ------------------------------------------------------------------------------------------------------------ */
 					for ( int cntr_2 = 0; cntr_2 < num_l2_xmlnodes; ++cntr_2 ) 
 					{
 						Node this_l2_item = level_2_xmlnodes.item( cntr_2 );
@@ -250,7 +270,7 @@ public class Notes01
 							
 							if ( key_node == null )
 							{
-								System.out.println( "Download tag/value processing: No key found" );
+								System.out.println( "tag/value processing: No key found" );
 								/* ------------------------------------------------------------------------------------------------------------
 								 * If we haven't found a tag name don't bother looking for a value. 
 								 * ------------------------------------------------------------------------------------------------------------ */
@@ -267,7 +287,7 @@ public class Notes01
 								 * ------------------------------------------------------------------------------------------------------------ */
 								if ( value_node == null )
 								{
-									System.out.println( "Download tag/value processing: No value found" );
+									System.out.println( "tag/value processing: No value found" );
 								}
 								else
 								{ // we have both a key and a value
@@ -298,7 +318,7 @@ public class Notes01
 					} // for cntr_2
 
 					/* ------------------------------------------------------------------------------------------------------------
-					 * We've processed all attributes and child nodes; write out what we know about this note
+					 * We've processed all attributes and child nodes; write out what we know about this fixme
 					 * 
 					 *  The symbol used currently defaults to "Shipwreck", but can easily be changed on the command line 
 					 *  if required.
@@ -330,11 +350,188 @@ public class Notes01
 				} // node
 				else
 				{ // !node
-					if ( l1_item_type != "#text" )
+					if ( l1_item_type == "way" )
 					{
-						if ( arg_debug >= Log_Informational_1 )
+						String fixme_id = ""; 
+						String fixme_text = ""; 
+						Node id_node = null;
+						String lat_string = "";
+						String lon_string = "";
+						boolean fixme_found = false;
+
+						NodeList level_2_xmlnodes = this_l1_item.getChildNodes();
+						int num_l2_xmlnodes = level_2_xmlnodes.getLength();
+		
+						if ( arg_debug >= Log_Informational_2 )
 						{
-							System.out.println( "Node " + cntr_1 + ": " + l1_item_type );
+							System.out.println( "L2 nodes found: " + num_l2_xmlnodes );
+						}
+		                    
+						/* ------------------------------------------------------------------------------------------------------------
+						 * OSM way items can have an attribute ("id") and tags (XML child nodes) - process the 
+						 * attributes first. 
+						 * ------------------------------------------------------------------------------------------------------------ */
+						if ( this_l1_item.hasAttributes() )
+						{
+							NamedNodeMap item_attributes = this_l1_item.getAttributes();
+							id_node = item_attributes.getNamedItem( "id" );
+
+							if ( id_node == null )
+							{
+								if ( arg_debug >= Log_Informational_1 )
+								{
+									System.out.println( "No way id found" );
+								}
+				            }
+							else
+							{
+								if ( arg_debug >= Log_Informational_1 )
+								{
+									System.out.println( "Way Id: " + id_node.getNodeValue() );
+								}
+							}
+
+							/* ------------------------------------------------------------------------------------------------------------
+							 * We need to make the fixme_id here unique.  Using the full OSM way id here isn't a problem - it is not
+							 * too long. 
+							 * ------------------------------------------------------------------------------------------------------------ */
+							fixme_id = "S FW" + id_node.getNodeValue();
+							
+							if ( arg_debug >= Log_Informational_2 )
+							{
+								System.out.println( "fixme_id: " + fixme_id );
+							}
+						} // attributes
+
+						/* ------------------------------------------------------------------------------------------------------------
+						 * Now process the XML child nodes 
+						 * ------------------------------------------------------------------------------------------------------------ */
+						for ( int cntr_2 = 0; cntr_2 < num_l2_xmlnodes; ++cntr_2 ) 
+						{
+							Node this_l2_item = level_2_xmlnodes.item( cntr_2 );
+							String l2_item_type = this_l2_item.getNodeName();
+
+							if ( l2_item_type.equals( "nd" ))
+							{
+								NamedNodeMap item_attributes = this_l2_item.getAttributes();
+								Node node_ref = item_attributes.getNamedItem( "ref" );
+
+								if ( node_ref == null )
+								{
+									System.out.println( "tag/value processing: No key found" );
+									/* ------------------------------------------------------------------------------------------------------------
+									 * If we haven't found a tag name don't bother looking for a value. 
+									 * ------------------------------------------------------------------------------------------------------------ */
+								}
+								else
+								{ 
+									/* ------------------------------------------------------------------------------------------------------------
+									 * We have a node ref - can we look it up in the hash tables to get lat and lon?  
+									 * 
+									 * There's no error checking here, so errors retrieved from Overpass will probably cause errors in Mapsource 
+									 * due to blank lat or lon strings.  Zero-node ways may also cause a problem.
+									 * ------------------------------------------------------------------------------------------------------------ */
+									lat_string = osmLatHash.get(node_ref.getNodeValue());
+									lon_string = osmLonHash.get(node_ref.getNodeValue());
+								}
+							}
+							else
+							{ // !nd
+								if ( l2_item_type.equals( "tag" ))
+								{
+									NamedNodeMap item_attributes = this_l2_item.getAttributes();
+									Node key_node = item_attributes.getNamedItem( "k" );
+									Node value_node = item_attributes.getNamedItem( "v" );
+									
+									if ( key_node == null )
+									{
+										System.out.println( "tag/value processing: No key found" );
+										/* ------------------------------------------------------------------------------------------------------------
+										 * If we haven't found a tag name don't bother looking for a value. 
+										 * ------------------------------------------------------------------------------------------------------------ */
+									}
+									else
+									{ // we have at least a key
+										if ( arg_debug >= Log_Informational_2 )
+										{
+											System.out.println( "tag_key: " + key_node.getNodeValue() );
+										}
+
+										/* ------------------------------------------------------------------------------------------------------------
+										 * We have found a tag name - check the value. 
+										 * ------------------------------------------------------------------------------------------------------------ */
+										if ( value_node == null )
+										{
+											System.out.println( "tag/value processing: No value found" );
+										}
+										else
+										{ // we have both a key and a value
+											if ( arg_debug >= Log_Informational_2 )
+											{
+												System.out.println( "tag_value: " + value_node.getNodeValue() );
+											}
+											
+											if ( key_node.getNodeValue().equals( "fixme" ))
+											{
+												fixme_found = true;
+												/* ------------------------------------------------------------------------------------------------------------
+												 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
+												 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
+												 * ------------------------------------------------------------------------------------------------------------ */
+												fixme_text = replace_all_escape_characters( value_node.getNodeValue() );
+											}
+										}
+									}
+								} //tag
+								else
+								{ // !tag
+									if ( l2_item_type != "#text" )
+									{
+										System.out.println( "Fixme: we're not currently interested in: " + l2_item_type );
+									}
+								} //!tag
+							} // !nd
+						} // for cntr_2
+
+						/* ------------------------------------------------------------------------------------------------------------
+						 * We've processed all attributes and child nodes; write out what we know about this fixme
+						 * 
+						 *  The symbol used currently defaults to "Shipwreck", but can easily be changed on the command line 
+						 *  if required.
+						 * ------------------------------------------------------------------------------------------------------------ */
+						if ( fixme_found )
+						{
+							osm_fixmes_found++;
+						}
+
+						if (( arg_out_gpx_file != ""   ) &&
+							( fixme_found              ))
+						{
+							myGpxPrintStream.println( "<wpt lat=\"" + lat_string + "\" lon=\"" + lon_string + "\">" );
+							myGpxPrintStream.println( "<name>" + fixme_id + "</name>" );
+							myGpxPrintStream.println( "<cmt>" + fixme_text + "</cmt>" );
+							myGpxPrintStream.println( "<desc>" + fixme_text + "</desc>" );
+							myGpxPrintStream.println( "<sym>" + passed_symbol + "</sym>" );
+							myGpxPrintStream.println( "</wpt>" );
+						}
+						
+						if (( arg_out_txt_file != ""   ) &&
+							( fixme_found              ))
+						{
+							myTxtPrintStream.println( fixme_id );
+							myTxtPrintStream.println( "==========" );
+							myTxtPrintStream.println( fixme_text );
+							myTxtPrintStream.println( "" );
+						}					
+					}
+					else
+					{
+						if ( l1_item_type != "#text" )
+						{
+							if ( arg_debug >= Log_Informational_1 )
+							{
+								System.out.println( "Node " + cntr_1 + ": " + l1_item_type );
+							}
 						}
 					}
 				} // !note
@@ -867,10 +1064,10 @@ public class Notes01
 
 		URL url;
 		/* ------------------------------------------------------------------------------
-		 * "?node" below just asks for nodes from Overpass.  Eventually qqq we'll
-		 * want to use "?*" to ask for nodes, ways and relations. 
+		 * The string below determines what data we ask for from Overpass. 
+		 * "xapi?node" would mean "just nodes"; "xapi?*" means nodes, ways and relations.  
 		 * ------------------------------------------------------------------------------ */
-		url = new URL( actual_overpass_path + "xapi?node[bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string + "][fixme=*]" );
+		url = new URL( actual_overpass_path + "xapi?*[bbox=" + passed_min_lon_string + "," + passed_min_lat_string + "," + passed_max_lon_string + "," + passed_max_lat_string + "][fixme=*]" );
 		process_fixmes_url_common( url, passed_symbol );
 	}
 	

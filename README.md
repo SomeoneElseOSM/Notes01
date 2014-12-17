@@ -77,14 +77,14 @@ Specifies an output file name for the GPX file to be sent to the device.
 Specifies an output file into which a text about the notes can be written.  Designed to be printed out or emailed, 
 it contains more information than the GPX because it's not subject to the size limits of GPX (or GPI) comments. 
 
-### -notes_display_name="Some User Name"
-Specifies a user's display name to search for notes created by.  It will be URLencoded before being passed to the API
-
 ### -do_notes
 Fetch OSM notes from the specified API and process them
 
 ### -do_fixmes
 Fetch OSM "fixme" tags from `http://overpass-api.de/api/` and create waypoints for nodes with fixme tags, and the last node of every way that has a fixme tag.
+
+### -notes_display_name="Some User Name"
+Specifies a user's display name to search for notes created by.  It will be URLencoded before being passed to the API
 
 ### -notes_uid=112
 Specifies a user's userid to search for notes created by.  
@@ -107,7 +107,7 @@ Specifies the maximum number of entries returned. A value of between 1 and 10000
 Specifies the symbol to use when creating Garmin waypoints.
 
 ### -bbox=-2.123,52.809,-0.331,53.521
-The bounding box to check notes against, in normal OSM format (west, south, east, north).  
+The bounding box to check notes and fixmes against, in normal OSM format (west, south, east, north).  
 
 
 

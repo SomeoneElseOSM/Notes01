@@ -523,18 +523,27 @@ public class Notes01
 							myTxtPrintStream.println( fixme_text );
 							myTxtPrintStream.println( "" );
 						}					
-					}
+					} // way
 					else
 					{
-						if ( l1_item_type != "#text" )
+						if ( l1_item_type == "relation" )
 						{
-							if ( arg_debug >= Log_Informational_1 )
+							/* ------------------------------------------------------------------------------------------------------------
+							 * There's no support for extracting fixmes for relations currently - relations tend to be large 
+							 * ------------------------------------------------------------------------------------------------------------ */
+						}
+						else
+						{
+							if ( l1_item_type != "#text" )
 							{
-								System.out.println( "Node " + cntr_1 + ": " + l1_item_type );
+								if ( arg_debug >= Log_Informational_1 )
+								{
+									System.out.println( "Node " + cntr_1 + ": " + l1_item_type );
+								}
 							}
 						}
 					}
-				} // !note
+				} // !node
 			} // for L1 nodes
 
 			if ( arg_debug >= Log_Serious )

@@ -16,7 +16,7 @@ You can import it into Eclipse if you want to (although, given that it's only a 
 need to).  If you're not using an IDE, install a JDK (e.g. 
 from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` 
 that you have just installed is on the PATH, and `javac Notes01.java` in order to 
-create `Notes01.class`.  `Notes01TestAmpersand01.class` contains some unit tests and isn't needed to export notes.  
+create `Notes01.class`.  `Notes01Test.class` contains some unit tests and isn't needed to export notes.  
 You can either `java Notes01 ...` or export `Notes01.jar`.
 A `build.xml` file is also provided for `ant` users - `ant build` will create the .jar file.  To include support for 
 the unit tests in the jar, place a `junit.jar` and a hamcrest jar into the "lib" directory and use `ant buildtest` instead.   
@@ -53,11 +53,16 @@ API default of 100) to X, `-notes_closed=Y` (to download also notes closed in th
 (to download only notes opened or commented on by the user with display name Z).  Only valid Garmin symbols without spaces in 
 (such as `Shipwreck` or `Forest`) are currently supported.  Therefore:
 
-    java -jar Notes01.jar -bbox=-1.2022,53.1365,-1.1882,53.1435 -notes_symbol=Forest -notes_closed=7 -notes_limit=3 -notes_display_name=SomeoneElse -output_gpx=notes2.gpx -output_txt=notes2.txt
+    java -jar Notes01.jar -do_notes -bbox=-1.2022,53.1365,-1.1882,53.1435 -notes_symbol=Forest -notes_closed=7 -notes_limit=3 -notes_display_name=SomeoneElse -output_gpx=notes2.gpx -output_txt=notes2.txt
 
 This obtains up to 3 notes (open, and those closed in the last 7 days) from the OSM live API in the same bounding box, 
 opened or commented on by user "SomeoneElse".  It writes a GPX file that can be sent to a Garmin device and also a text 
 file that you can e.g. also email yourself for reference.
+
+    java -jar Notes01.jar -do_fixmes -bbox=-1.2022,53.1365,-1.1882,53.1435 -notes_symbol=Forest -output_gpx=notes2.gpx -output_txt=notes2.txt
+
+Similar to the above, but creates waypoints for nodes with "fixme" tags and for the first node of each way that has a fixme tag.
+It doesn't process differently spelt tags (e.g. FIXME or Fixme) and doesn't process relations with "fixme" tags.
 
 
 Supported Parameters

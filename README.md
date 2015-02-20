@@ -12,7 +12,8 @@ allows a GPX file to be downloaded directly, it's not formatted in a way that ca
 
 Building
 --------
-You can import it into Eclipse if you want to (although, given that it's only a couple of .java files, there's really no 
+If you don't want to just download one of the releases, you can import it into Eclipse if you want to 
+(although, given that it's only a couple of .java files, there's really no 
 need to).  If you're not using an IDE, install a JDK (e.g. 
 from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` 
 that you have just installed is on the PATH, and `javac Notes01.java` in order to 

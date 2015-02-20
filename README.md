@@ -26,7 +26,11 @@ Usage examples
 --------------
     java -jar Notes01.jar -do_notes -bbox=-1.2022,53.1365,-1.1882,53.1435 -output_gpx=notes.gpx
 
-This obtains only open notes from the OSM live API in that bounding box, and creates a GPX file of them which can then be uploaded to a Garmin GPS via either Mapsource or gpsbabel:
+This obtains only open notes from the OSM live API in this bounding box:
+
+http://tools.geofabrik.de/calc/#type=geofabrik_standard&tab=1&bbox=-1.2022,53.1365,-1.1882,53.1435
+
+and creates a GPX file of them which can then be uploaded to a Garmin GPS via either Mapsource or gpsbabel:
 
     gpsbabel -i gpx -f notes.gpx -o garmin -F usb:
 

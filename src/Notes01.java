@@ -588,6 +588,7 @@ public class Notes01
 					String note_id = ""; 
 					String comment_action = ""; 
 					String comment_open_text = ""; 
+					String comment_temp_text = ""; // FRANCO
 					Node lat_node = null;
 					Node lon_node = null;
 					boolean display_name_matches = false;
@@ -741,15 +742,31 @@ public class Notes01
 														/* ------------------------------------------------------------------------------------------------------------
 														 * We only process the "opening" text currently (we're limited to 30 characters in any case)  
 														 * ------------------------------------------------------------------------------------------------------------ */
-														if ( comment_action.equals( "opened" ))
+														if ( true || comment_action.equals( "opened" )) // we want all of the text - the 30 character limit is only for old devices FRANCO
 														{
-															comment_open_text = myGetNodeValue( this_l4_item );
+															comment_temp_text = myGetNodeValue( this_l4_item );
 															
 															/* ------------------------------------------------------------------------------------------------------------
 															 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
 															 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
 															 * ------------------------------------------------------------------------------------------------------------ */
-															comment_open_text = replace_all_escape_characters( comment_open_text );
+															comment_temp_text = replace_all_escape_characters( comment_temp_text );
+															
+															if (comment_temp_text.length() > 0) // FRANCO
+															{
+																if (comment_open_text.length() > 0)
+																{
+																	comment_open_text = comment_open_text + "\n";
+																}
+																if (comment_action.equals( "opened" ))
+																{
+																	comment_open_text = comment_open_text + comment_temp_text;
+																}
+																else
+																{
+																	comment_open_text = comment_open_text + "(" + comment_action + ") " + comment_temp_text;
+																}
+															}
 
 /* ------------------------------------------------------------------------------------------------------------
  * The actual "note" on the Garmin device itself will be truncated after 30 characters.  

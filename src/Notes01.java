@@ -740,51 +740,33 @@ public class Notes01
 													if ( l4_item_type.equals( "text" ))
 													{
 														/* ------------------------------------------------------------------------------------------------------------
-														 * We only process the "opening" text currently (we're limited to 30 characters in any case)  
+														 * Previously we only processed the "opening" text as we were (prior to modern Garmin devices) limited to 30 
+														 * characters.  Now we process all text from all comment_actions (e.g. "commented" as well).
 														 * ------------------------------------------------------------------------------------------------------------ */
-														if ( true || comment_action.equals( "opened" )) // we want all of the text - the 30 character limit is only for old devices FRANCO
+													  comment_temp_text = myGetNodeValue( this_l4_item );
+															
+														/* ------------------------------------------------------------------------------------------------------------
+														 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
+														 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
+														 * ------------------------------------------------------------------------------------------------------------ */
+														comment_temp_text = replace_all_escape_characters( comment_temp_text );
+															
+														if (comment_temp_text.length() > 0) // FRANCO
 														{
-															comment_temp_text = myGetNodeValue( this_l4_item );
-															
-															/* ------------------------------------------------------------------------------------------------------------
-															 * Escape any & from in string.  This must be done because MapSource doesn't like raw "&" in comment text.  We 
-															 * change to "&amp;" as that's what an ampersand entered on the Garmin keyboard would come through as.
-															 * ------------------------------------------------------------------------------------------------------------ */
-															comment_temp_text = replace_all_escape_characters( comment_temp_text );
-															
-															if (comment_temp_text.length() > 0) // FRANCO
+															if (comment_open_text.length() > 0)
 															{
-																if (comment_open_text.length() > 0)
-																{
-																	comment_open_text = comment_open_text + "\n";
-																}
-																if (comment_action.equals( "opened" ))
-																{
-																	comment_open_text = comment_open_text + comment_temp_text;
-																}
-																else
-																{
-																	comment_open_text = comment_open_text + "(" + comment_action + ") " + comment_temp_text;
-																}
+																comment_open_text = comment_open_text + "\n";
 															}
 
-/* ------------------------------------------------------------------------------------------------------------
- * The actual "note" on the Garmin device itself will be truncated after 30 characters.  
- * 
- * Code to only process the first line of text is commented out below.
- * ------------------------------------------------------------------------------------------------------------ */
-//															i = comment_open_text.indexOf( '\n' );
-//															
-//															if ( arg_debug >= Log_Informational_2 )
-//															{
-//																System.out.println( "i: " + i );
-//															}
-//															
-//															if ( i > 0 )
-//															{
-//																comment_open_text = comment_open_text.substring( 0, i );
-//															}
-														} // opened comments - no "else" because we don't handle others currently.
+															if (comment_action.equals( "opened" ))
+															{
+																comment_open_text = comment_open_text + comment_temp_text;
+															}
+															else
+															{
+																comment_open_text = comment_open_text + "(" + comment_action + ") " + comment_temp_text;
+															}
+														}
 													
 														if ( arg_debug >= Log_Informational_2 )
 														{

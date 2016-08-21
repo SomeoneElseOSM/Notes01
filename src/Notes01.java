@@ -14,78 +14,82 @@ import org.w3c.dom.NodeList;
 
 public class Notes01 
 {
-	static final String live_api_path = "http://openstreetmap.org/api/0.6/";
-	static final String dev_api_path = "http://api06.dev.openstreetmap.org/api/0.6/";
+    static final String live_api_path = "http://openstreetmap.org/api/0.6/";
+    static final String dev_api_path = "http://api06.dev.openstreetmap.org/api/0.6/";
 
-	static final String de_overpass_path = "http://overpass-api.de/api/";
-	static final String ru_overpass_path = "http://overpass.osm.rambler.ru/cgi/";
+    static final String de_overpass_path = "http://overpass-api.de/api/";
+    static final String ru_overpass_path = "http://overpass.osm.rambler.ru/cgi/";
+    static final String fr_overpass_path = "http://api.openstreetmap.fr/oapi/interpreter/";
+    static final String ch_overpass_path = "http://overpass.osm.ch/api/";
 
-	final static int Log_Debug_Off = 0;			// Used to turn debug off
-	final static int Log_Serious = 1;			// A serious error has occurred, or we always want to output something. 
-	final static int Log_Error = 2;				// An error that we can work around has occurred
-	final static int Log_Warning = 3;			// Not currently used
-	final static int Log_Return = 4; 			// Return values from top-level subroutines
-	final static int Log_Informational_1 = 5;	// Important informational stuff
-	final static int Log_Top_Routine_Start = 6;	// top-level routine start code
-	final static int Log_Low_Routine_Start = 7; // low-level routing start code
-	final static int Log_Informational_2 = 8;	// Any other informational stuff
+    final static int Log_Debug_Off = 0;			// Used to turn debug off
+    final static int Log_Serious = 1;			// A serious error has occurred, or we always want to output something. 
+    final static int Log_Error = 2;				// An error that we can work around has occurred
+    final static int Log_Warning = 3;			// Not currently used
+    final static int Log_Return = 4; 			// Return values from top-level subroutines
+    final static int Log_Informational_1 = 5;	// Important informational stuff
+    final static int Log_Top_Routine_Start = 6;	// top-level routine start code
+    final static int Log_Low_Routine_Start = 7; // low-level routing start code
+    final static int Log_Informational_2 = 8;	// Any other informational stuff
 
-	/* ------------------------------------------------------------------------------
-	 * Parameters common to both API notes and "fixme" tags
-	 * ------------------------------------------------------------------------------ */
-	final static String param_debug = "-debug=";
-	final static String param_output_gpx = "-output_gpx=";
-	final static String param_output_txt = "-output_txt=";
-	final static String param_bbox = "-bbox=";	// Unlike Changeset1 the is passed to the API
-	final static String param_do_notes = "-do_notes";
-	final static String param_do_fixmes = "-do_fixmes";
+    /* ------------------------------------------------------------------------------
+     * Parameters common to both API notes and "fixme" tags
+     * ------------------------------------------------------------------------------ */
+    final static String param_debug = "-debug=";
+    final static String param_output_gpx = "-output_gpx=";
+    final static String param_output_txt = "-output_txt=";
+    final static String param_bbox = "-bbox=";	// Unlike Changeset1 the is passed to the API
+    final static String param_do_notes = "-do_notes";
+    final static String param_do_fixmes = "-do_fixmes";
 
-	/* ------------------------------------------------------------------------------
-	 * Parameters only relevant to API notes
-	 * ------------------------------------------------------------------------------ */
-	final static String param_notes_input = "-notes_input=";
-	final static String param_notes_closed = "-notes_closed=";
-	final static String param_notes_limit = "-notes_limit=";
-	final static String param_notes_symbol = "-notes_symbol=";
-	final static String param_display_name = "-notes_display_name=";
-	final static String param_notes_uid = "-notes_uid=";
-	final static String param_notes_dev = "-notes_dev";
+    /* ------------------------------------------------------------------------------
+     * Parameters only relevant to API notes
+     * ------------------------------------------------------------------------------ */
+    final static String param_notes_input = "-notes_input=";
+    final static String param_notes_closed = "-notes_closed=";
+    final static String param_notes_limit = "-notes_limit=";
+    final static String param_notes_symbol = "-notes_symbol=";
+    final static String param_display_name = "-notes_display_name=";
+    final static String param_notes_uid = "-notes_uid=";
+    final static String param_notes_dev = "-notes_dev";
 
-	/* ------------------------------------------------------------------------------
-	 * Parameters only relevant to "fixme" tags
-	 * ------------------------------------------------------------------------------ */
+    /* ------------------------------------------------------------------------------
+     * Parameters only relevant to "fixme" tags
+     * ------------------------------------------------------------------------------ */
+    final static String param_fixmes_api = "-fixmes_api=";
 
-	/* ------------------------------------------------------------------------------
-	 * Other settings, including default values for the above.
-	 * ------------------------------------------------------------------------------ */
-	static String actual_api_path = live_api_path;				// Defaults to live API
-	static String actual_overpass_path = de_overpass_path;		// Defaults to Germany
+    /* ------------------------------------------------------------------------------
+     * Other settings, including default values for the above.
+     * ------------------------------------------------------------------------------ */
+    static String actual_api_path = live_api_path;			// Defaults to live API
+    static String arg_fixmes_api = "de";				// Defaults to Germany
+    static String actual_overpass_path = de_overpass_path;		// Defaults to Germany
 
-	static boolean arg_do_notes = false;
-	static boolean arg_do_fixmes = false;
+    static boolean arg_do_notes = false;
+    static boolean arg_do_fixmes = false;
 
-	static String arg_in_file = "";				// -input=       Default to no input file
-	static String arg_out_gpx_file = "";		// -output_gpx=  No output GPX file default
-	static String arg_out_txt_file = "";		// -output_txt=  No output TXT file default
-	static int arg_debug = Log_Serious;			// -debug=       Default to Log_Serious
-	static String arg_closed = "0";				// -closed=  	 Default to only showing open notes
-	static String arg_limit = "100";			// -limit=   	 Default to returning up to 100 notes
-	static String arg_symbol = "Shipwreck";		// -symbol=   	 The default Garmin symbol to use for created waypoints
-	static String arg_bbox = "";				// -bbox=		 No bounding box default
+    static String arg_in_file = "";				// -input=       Default to no input file
+    static String arg_out_gpx_file = "";		// -output_gpx=  No output GPX file default
+    static String arg_out_txt_file = "";		// -output_txt=  No output TXT file default
+    static int arg_debug = Log_Serious;			// -debug=       Default to Log_Serious
+    static String arg_closed = "0";				// -closed=  	 Default to only showing open notes
+    static String arg_limit = "100";			// -limit=   	 Default to returning up to 100 notes
+    static String arg_symbol = "Shipwreck";		// -symbol=   	 The default Garmin symbol to use for created waypoints
+    static String arg_bbox = "";				// -bbox=		 No bounding box default
 	
-	static String arg_min_lat_string = "";
-	static String arg_min_lon_string = "";
-	static String arg_max_lat_string = "";
-	static String arg_max_lon_string = "";
+    static String arg_min_lat_string = "";
+    static String arg_min_lon_string = "";
+    static String arg_max_lat_string = "";
+    static String arg_max_lon_string = "";
 
-	static File myFile;
-	static OutputStream myoutput_gpxStream;
-	static OutputStream myoutput_txtStream;
-	static PrintStream myGpxPrintStream;
-	static PrintStream myTxtPrintStream;
+    static File myFile;
+    static OutputStream myoutput_gpxStream;
+    static OutputStream myoutput_txtStream;
+    static PrintStream myGpxPrintStream;
+    static PrintStream myTxtPrintStream;
 
-	private static Hashtable<String, String> osmLatHash;
-	private static Hashtable<String, String> osmLonHash;
+    private static Hashtable<String, String> osmLatHash;
+    private static Hashtable<String, String> osmLonHash;
 	
 	private static String myGetNodeValue( Node passed_node )
 	{
@@ -1189,22 +1193,22 @@ public class Notes01
 /**
  * @param args
  */
-	public static void main(String[] args) throws Exception 
-	{
-		String arg_display_name = "";
-		String arg_uid = "";
+    public static void main(String[] args) throws Exception 
+    {
+	String arg_display_name = "";
+	String arg_uid = "";
 		
-		arg_debug = Log_Serious;
+	arg_debug = Log_Serious;
 		
-		for ( int i=0; i<args.length; i++ )
-		{
-			if ( args[i].length() >= 2)
-			{
-				if ( arg_debug >= Log_Informational_2 )
-				{
-					System.out.println( "arg: " + i );
-					System.out.println( "arg length: " + args[i].length() );
-				}
+	for ( int i=0; i<args.length; i++ )
+	    {
+		if ( args[i].length() >= 2)
+		    {
+			if ( arg_debug >= Log_Informational_2 )
+			    {
+				System.out.println( "arg: " + i );
+				System.out.println( "arg length: " + args[i].length() );
+			    }
 				
 /* ------------------------------------------------------------------------------
  * Debug level
@@ -1213,50 +1217,50 @@ public class Notes01
  * to pass "debug" as the first parameter, if required, as it will then be in 
  * effect during the processing of the other parameters.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_debug ))
-				{
-					try
-					{
-						arg_debug = Integer.valueOf( args[i].substring( param_debug.length() ));
-					}
-					catch( Exception ex )
-					{
+			if ( args[i].startsWith( param_debug ))
+			    {
+				try
+				    {
+					arg_debug = Integer.valueOf( args[i].substring( param_debug.length() ));
+				    }
+				catch( Exception ex )
+				    {
 /* ------------------------------------------------------------------------------
  * Any failure above just means that we leave arg_debug at Log_Serious
  * ------------------------------------------------------------------------------ */
-					}
+				    }
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_debug: " + arg_debug );
-					}
-				} // -debug
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_debug: " + arg_debug );
+				    }
+			    } // -debug
 				
-				/* ------------------------------------------------------------------------------
-				 * Should we user the dev API to fetch OSM Notes?
-				 * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_do_notes ))
-				{	
-					arg_do_notes = true;
-					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "We will process OSM notes" );
-					}
-				} // -do_notes
+			/* ------------------------------------------------------------------------------
+			 * Should we fetch OSM Notes?
+			 * ------------------------------------------------------------------------------ */
+			if ( args[i].startsWith( param_do_notes ))
+			    {	
+				arg_do_notes = true;
+
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "We will process OSM notes" );
+				    }
+			    } // -do_notes
 				
-				/* ------------------------------------------------------------------------------
-				 * Should we user the dev API to fetch Overpass fixmes?
-				 * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_do_fixmes ))
-				{	
-					arg_do_fixmes = true;
+			/* ------------------------------------------------------------------------------
+			 * Should we user the dev API to fetch Overpass fixmes?
+			 * ------------------------------------------------------------------------------ */
+			if ( args[i].startsWith( param_do_fixmes ))
+			    {	
+				arg_do_fixmes = true;
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "We will process Overpass fixmes" );
-					}
-				} // -do_fixmes
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "We will process Overpass fixmes" );
+				    }
+			    } // -do_fixmes
 				
 /* ------------------------------------------------------------------------------
  * Input file
@@ -1264,321 +1268,362 @@ public class Notes01
  * If specified Notes01 will read from an input file rather than fetching from an API.
  * Mainly designed to be used for testing.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_notes_input ))
-				{	
-					arg_in_file = args[i].substring( param_notes_input.length() );
+			if ( args[i].startsWith( param_notes_input ))
+			    {	
+				arg_in_file = args[i].substring( param_notes_input.length() );
 
-					try
-					{
-						myFile = new File( arg_in_file );
-					}
-					catch( Exception ex )
-					{
+				try
+				    {
+					myFile = new File( arg_in_file );
+				    }
+				catch( Exception ex )
+				    {
 /* ------------------------------------------------------------------------------
  * If there's an error opening the input file, don't pretend that it wasn't 
  * specified on the command line.
  * ------------------------------------------------------------------------------ */
-						arg_in_file = "!file";
+					arg_in_file = "!file";
 						
-						if ( arg_debug >= Log_Informational_1 )
-						{
-							System.out.println( "Error opening input file: " + ex.getMessage() );
-						}
-					}
+					if ( arg_debug >= Log_Informational_1 )
+					    {
+						System.out.println( "Error opening input file: " + ex.getMessage() );
+					    }
+				    }
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_in_file: " + arg_in_file );
-						System.out.println( "arg_in_file length: " + arg_in_file.length() );
-					}
-				} // -input
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_in_file: " + arg_in_file );
+					System.out.println( "arg_in_file length: " + arg_in_file.length() );
+				    }
+			    } // -input
 				
 /* ------------------------------------------------------------------------------
  * output_gpx file
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_output_gpx ))
-				{	
-					arg_out_gpx_file = args[i].substring( param_output_gpx.length() );
+			if ( args[i].startsWith( param_output_gpx ))
+			    {	
+				arg_out_gpx_file = args[i].substring( param_output_gpx.length() );
 
-					try
-					{
-						myoutput_gpxStream = new FileOutputStream( arg_out_gpx_file );
-						myGpxPrintStream = new PrintStream( myoutput_gpxStream );
-					}
-					catch( Exception ex )
-					{
-						arg_out_gpx_file = "";
+				try
+				    {
+					myoutput_gpxStream = new FileOutputStream( arg_out_gpx_file );
+					myGpxPrintStream = new PrintStream( myoutput_gpxStream );
+				    }
+				catch( Exception ex )
+				    {
+					arg_out_gpx_file = "";
 						
-						if ( arg_debug >= Log_Informational_1 )
-						{
-							System.out.println( "Error opening output_gpx file: " + ex.getMessage() );
-						}
-					}
+					if ( arg_debug >= Log_Informational_1 )
+					    {
+						System.out.println( "Error opening output_gpx file: " + ex.getMessage() );
+					    }
+				    }
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_out_gpx_file: " + arg_out_gpx_file );
-						System.out.println( "arg_out_gpx_file length: " + arg_out_gpx_file.length() );
-					}
-				} // -output_gpx
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_out_gpx_file: " + arg_out_gpx_file );
+					System.out.println( "arg_out_gpx_file length: " + arg_out_gpx_file.length() );
+				    }
+			    } // -output_gpx
 				
 /* ------------------------------------------------------------------------------
  * output_txt file
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_output_txt ))
-				{	
-					arg_out_txt_file = args[i].substring( param_output_txt.length() );
+			if ( args[i].startsWith( param_output_txt ))
+			    {	
+				arg_out_txt_file = args[i].substring( param_output_txt.length() );
 
-					try
-					{
-						myoutput_txtStream = new FileOutputStream( arg_out_txt_file );
-						myTxtPrintStream = new PrintStream( myoutput_txtStream );
-					}
-					catch( Exception ex )
-					{
-						arg_out_txt_file = "";
+				try
+				    {
+					myoutput_txtStream = new FileOutputStream( arg_out_txt_file );
+					myTxtPrintStream = new PrintStream( myoutput_txtStream );
+				    }
+				catch( Exception ex )
+				    {
+					arg_out_txt_file = "";
 						
-						if ( arg_debug >= Log_Informational_1 )
-						{
-							System.out.println( "Error opening output_txt file: " + ex.getMessage() );
-						}
-					}
+					if ( arg_debug >= Log_Informational_1 )
+					    {
+						System.out.println( "Error opening output_txt file: " + ex.getMessage() );
+					    }
+				    }
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_out_txt_file: " + arg_out_txt_file );
-						System.out.println( "arg_out_txt_file length: " + arg_out_txt_file.length() );
-					}
-				} // -output_txt
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_out_txt_file: " + arg_out_txt_file );
+					System.out.println( "arg_out_txt_file length: " + arg_out_txt_file.length() );
+				    }
+			    } // -output_txt
 								
 /* ------------------------------------------------------------------------------
  * The user that we're interested in changesets for - display name
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_display_name ))
-				{	
-					arg_display_name = args[i].substring( param_display_name.length() );
+			if ( args[i].startsWith( param_display_name ))
+			    {	
+				arg_display_name = args[i].substring( param_display_name.length() );
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_display_name: " + arg_display_name );
-						System.out.println( "arg_display_name length: " + arg_display_name.length() );
-					}
-				} // -display_name
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_display_name: " + arg_display_name );
+					System.out.println( "arg_display_name length: " + arg_display_name.length() );
+				    }
+			    } // -display_name
 				
 /* ------------------------------------------------------------------------------
  * The user that we're interested in changesets for - uid
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_notes_uid ))
-				{	
-					arg_uid = args[i].substring( param_notes_uid.length() );
-					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_uid: " + arg_uid );
-						System.out.println( "arg_uid length: " + arg_uid.length() );
-					}
-				} // -uid
+			if ( args[i].startsWith( param_notes_uid ))
+			    {	
+				arg_uid = args[i].substring( param_notes_uid.length() );
+				
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_uid: " + arg_uid );
+					System.out.println( "arg_uid length: " + arg_uid.length() );
+				    }
+			    } // -uid
 				
 /* ------------------------------------------------------------------------------
  * Should we user the dev API to fetch OSM Notes?
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_notes_dev ))
-				{	
-					actual_api_path = dev_api_path;
-					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "Dev server will be used" );
-					}
-				} // -notes_dev
+			if ( args[i].startsWith( param_notes_dev ))
+			    {	
+				actual_api_path = dev_api_path;
+				
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "Dev server will be used" );
+				    }
+			    } // -notes_dev
 				
 /* ------------------------------------------------------------------------------
  * Should we return closed notes, and if so how many days old?
  * Our default for this is 0 (don't return closed notes) which differs from the
  * API default of 7.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_notes_closed ))
-				{	
-					try
-					{
-						arg_closed = args[i].substring( param_notes_closed.length() );
-					}
-					catch( Exception ex )
-					{
+			if ( args[i].startsWith( param_notes_closed ))
+			    {	
+				try
+				    {
+					arg_closed = args[i].substring( param_notes_closed.length() );
+				    }
+				catch( Exception ex )
+				    {
 /* ------------------------------------------------------------------------------
  * Any failure above just means that we leave arg_limit at our default of "0"
  * ------------------------------------------------------------------------------ */
-					}
-					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_closed: [" + arg_closed + "]" );
-					}
-				} // -closed
+				    }
+				
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_closed: [" + arg_closed + "]" );
+				    }
+			    } // -closed
 				
 /* ------------------------------------------------------------------------------
  * Limit the total number of notes returned.  If unset up to 100 are returned
  * ( which is also the API default). 
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_notes_limit ))
-				{	
-					try
-					{
-						arg_limit = args[i].substring( param_notes_limit.length() );
-					}
-					catch( Exception ex )
-					{
+			if ( args[i].startsWith( param_notes_limit ))
+			    {	
+				try
+				    {
+					arg_limit = args[i].substring( param_notes_limit.length() );
+				    }
+				catch( Exception ex )
+				    {
 /* ------------------------------------------------------------------------------
  * Any failure above just means that we leave arg_limit at the default of "100"
  * ------------------------------------------------------------------------------ */
-					}
+				    }
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_limit: [" + arg_limit + "]" );
-					}
-				} // -limit
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_limit: [" + arg_limit + "]" );
+				    }
+			    } // -limit
 				
 /* ------------------------------------------------------------------------------
  * What Garmin symbol should be used?  If unset the default "Shipwreck" is used.
  * Note that Garmin symbols with spaces in aren't supported yet.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_notes_symbol ))
-				{	
-					try
-					{
-						arg_symbol = args[i].substring( param_notes_symbol.length() );
-					}
-					catch( Exception ex )
-					{
+			if ( args[i].startsWith( param_notes_symbol ))
+			    {	
+				try
+				    {
+					arg_symbol = args[i].substring( param_notes_symbol.length() );
+				    }
+				catch( Exception ex )
+				    {
 /* ------------------------------------------------------------------------------
- * Any failure above just means that we leave arg_limit at the default of "100"
+ * Any failure above just means that we leave arg_symbol at the default 
+ * of "Shipwreck"
  * ------------------------------------------------------------------------------ */
-					}
+				    }
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_symbol: [" + arg_symbol + "]" );
-					}
-				} // -symbol
-				
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_symbol: [" + arg_symbol + "]" );
+				    }
+			    } // -symbol
+			
+/* ------------------------------------------------------------------------------
+ * Which overpass API should we use?
+ * ------------------------------------------------------------------------------ */
+			if ( args[i].startsWith( param_fixmes_api ))
+			    {	
+				try
+				    {
+					arg_fixmes_api = args[i].substring( param_fixmes_api.length() );
+				    }
+				catch( Exception ex )
+				    {
+/* ------------------------------------------------------------------------------
+ * Any failure above just means that we leave arg_fixmes_api at the default of "de"
+ * ------------------------------------------------------------------------------ */
+				    }
+
+				if ( arg_fixmes_api.equalsIgnoreCase( "de" ))
+				    {
+					actual_overpass_path = de_overpass_path;
+				    }
+
+				if ( arg_fixmes_api.equalsIgnoreCase( "ru" ))
+				    {
+					actual_overpass_path = ru_overpass_path;
+				    }
+
+				if ( arg_fixmes_api.equalsIgnoreCase( "fr" ))
+				    {
+					actual_overpass_path = fr_overpass_path;
+				    }
+
+				if ( arg_fixmes_api.equalsIgnoreCase( "ch" ))
+				    {
+					actual_overpass_path = ch_overpass_path;
+				    }
+
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_fixmes_api: [" + arg_fixmes_api + "]" );
+					System.out.println( "actual_overpass_path: [" + actual_overpass_path + "]" );
+				    }
+			    } // which api to use for fixmes
+							
 /* ------------------------------------------------------------------------------
  * A bounding box that we're interesting in fetching notes from.
  * 
  * Unlike with "Changeset1", this is passed to the API, although we still do
  * parse parameters for the correct number of commas here.
  * ------------------------------------------------------------------------------ */
-				if ( args[i].startsWith( param_bbox ))
-				{	
-					arg_bbox = args[i].substring( param_bbox.length() );
+			if ( args[i].startsWith( param_bbox ))
+			    {	
+				arg_bbox = args[i].substring( param_bbox.length() );
 					
-					if ( arg_debug >= Log_Informational_2 )
-					{
-						System.out.println( "arg_bbox: " + arg_bbox );
-						System.out.println( "arg_bbox length: " + arg_bbox.length() );
-					}
+				if ( arg_debug >= Log_Informational_2 )
+				    {
+					System.out.println( "arg_bbox: " + arg_bbox );
+					System.out.println( "arg_bbox length: " + arg_bbox.length() );
+				    }
 					
-					int comma_pos = return_next_comma( arg_bbox );
-					int old_comma_pos = 0;
+				int comma_pos = return_next_comma( arg_bbox );
+				int old_comma_pos = 0;
 					
-					if ( comma_pos > 0 )
-					{ // found min lon
-						arg_min_lon_string = arg_bbox.substring( 0, comma_pos );
+				if ( comma_pos > 0 )
+				    { // found min lon
+					arg_min_lon_string = arg_bbox.substring( 0, comma_pos );
 
 /* ------------------------------------------------------------------------------
  * Commas are one character long,  the other sequence we match (%2C) is 3.  We
  * use comma_pos to start searching for the start of the next string, so if we've 
  * found %2C need to shuffle 2 to the right.
  * ------------------------------------------------------------------------------ */
-						if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
-						{
-							comma_pos = comma_pos + 2;
-						}
+					if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+					    {
+						comma_pos = comma_pos + 2;
+					    }
 						
-						if ( arg_debug >= Log_Informational_1 )
-						{
-							System.out.println( "arg_min_lon: " + arg_min_lon_string );
-						}
+					if ( arg_debug >= Log_Informational_1 )
+					    {
+						System.out.println( "arg_min_lon: " + arg_min_lon_string );
+					    }
+						
+					old_comma_pos = comma_pos;
+					comma_pos = return_next_comma( arg_bbox, comma_pos+1 );
 
-						
+					if ( comma_pos > 0 )
+					    { // found min lat
+						arg_min_lat_string = arg_bbox.substring( old_comma_pos+1, comma_pos );
+							
+						if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+						    {
+							comma_pos = comma_pos + 2;
+						    }
+
+						if ( arg_debug >= Log_Informational_1 )
+						    {
+							System.out.println( "arg_min_lat: " + arg_min_lat_string );
+						    }
+
 						old_comma_pos = comma_pos;
 						comma_pos = return_next_comma( arg_bbox, comma_pos+1 );
 
 						if ( comma_pos > 0 )
-						{ // found min lat
-							arg_min_lat_string = arg_bbox.substring( old_comma_pos+1, comma_pos );
-							
+						    { // found max lon; what's left must be max lat
+							arg_max_lon_string = arg_bbox.substring( old_comma_pos+1, comma_pos );
+								
 							if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
-							{
+							    {
 								comma_pos = comma_pos + 2;
-							}
-
+							    }
+								
 							if ( arg_debug >= Log_Informational_1 )
-							{
-								System.out.println( "arg_min_lat: " + arg_min_lat_string );
-							}
+							    {
+								System.out.println( "arg_max_lon: " + arg_max_lon_string );
+							    }
 
-							
 							old_comma_pos = comma_pos;
-							comma_pos = return_next_comma( arg_bbox, comma_pos+1 );
-
-							if ( comma_pos > 0 )
-							{ // found max lon; what's left must be max lat
-								arg_max_lon_string = arg_bbox.substring( old_comma_pos+1, comma_pos );
+							arg_max_lat_string = arg_bbox.substring( old_comma_pos+1 );
 								
-								if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
-								{
-									comma_pos = comma_pos + 2;
-								}
+							if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
+							    {
+								comma_pos = comma_pos + 2;
+							    }
 								
-								if ( arg_debug >= Log_Informational_1 )
-								{
-									System.out.println( "arg_max_lon: " + arg_max_lon_string );
-								}
-
-
-								old_comma_pos = comma_pos;
-								arg_max_lat_string = arg_bbox.substring( old_comma_pos+1 );
-								
-								if ( !arg_bbox.substring( comma_pos, comma_pos+1 ).equals( "," ))
-								{
-									comma_pos = comma_pos + 2;
-								}
-								
-								if ( arg_debug >= Log_Informational_1 )
-								{
-									System.out.println( "arg_max_lat: " + arg_max_lat_string );
-								}
-							} // max lon found
-							else
-							{
-								if ( arg_debug >= Log_Error )
-								{
-									System.out.println( "3rd comma_pos: " + comma_pos );
-									arg_bbox = "";
-								}
-							} // no max lon
-						} // min lat found
+							if ( arg_debug >= Log_Informational_1 )
+							    {
+								System.out.println( "arg_max_lat: " + arg_max_lat_string );
+							    }
+						    } // max lon found
 						else
-						{
+						    {
 							if ( arg_debug >= Log_Error )
-							{
-								System.out.println( "2nd comma_pos: " + comma_pos );
+							    {
+								System.out.println( "3rd comma_pos: " + comma_pos );
 								arg_bbox = "";
-							}
-						} // no min lat
-					} // min lon found
+							    }
+						    } // no max lon
+					    } // min lat found
 					else
-					{
+					    {
 						if ( arg_debug >= Log_Error )
-						{
-							System.out.println( "1st comma_pos: " + comma_pos );
+						    {
+							System.out.println( "2nd comma_pos: " + comma_pos );
 							arg_bbox = "";
-						}
-					} // no min lon
-				} // -bbox
-			} // potentially valid argument
-		} // for each thing on the command line
+						    }
+					    } // no min lat
+				    } // min lon found
+				else
+				    {
+					if ( arg_debug >= Log_Error )
+					    {
+						System.out.println( "1st comma_pos: " + comma_pos );
+						arg_bbox = "";
+					    }
+				    } // no min lon
+			    } // -bbox
+		    } // potentially valid argument
+	    } // for each thing on the command line
 
 		
 /* ------------------------------------------------------------------------------

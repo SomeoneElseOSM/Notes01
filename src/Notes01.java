@@ -978,80 +978,102 @@ public class Notes01
 		return result_text;
 	}
 	
-	static void process_fixmes_url_common ( URL passed_url, String passed_symbol ) throws Exception
-	{
-		if ( arg_debug >= Log_Informational_2 )
-		{
-			System.out.println( "passed_url: " + passed_url );
-			System.out.println( "passed_symbol: " + passed_symbol );
-		}
-		
-		InputStreamReader input;
-		
-		URLConnection urlConn = passed_url.openConnection();
-		urlConn.setDoInput( true );
-		urlConn.setDoOutput( false );
-		urlConn.setUseCaches( false );
-	
-		input = new InputStreamReader( urlConn.getInputStream() );
-	
-	    char[] data = new char[ 256 ];
-	    int len = 0;
-		StringBuffer sb = new StringBuffer();		
-	
-	    while ( -1 != ( len = input.read( data, 0, 255 )) )
+    static void process_fixmes_url_common ( URL passed_url, String passed_symbol ) throws Exception
+    {
+	if ( arg_debug >= Log_Informational_2 )
 	    {
-	        sb.append( new String( data, 0, len ));
-	    }   
-	
-	    DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
-	    ByteArrayInputStream inputStream = new ByteArrayInputStream( sb.toString().getBytes( "UTF-8" ));
-	
-	    Document myDocument = myBuilder.parse( inputStream );
-	    Element rootElement = myDocument.getDocumentElement();
-	    process_fixmes_xml( rootElement, passed_symbol );
-	
-	    input.close();
-	}
+		System.out.println( "passed_url: " + passed_url );
+		System.out.println( "passed_symbol: " + passed_symbol );
+	    }
+		
+	InputStreamReader input;
+		
+	URLConnection urlConn = passed_url.openConnection();
+	urlConn.setDoInput( true );
+	urlConn.setDoOutput( false );
+	urlConn.setUseCaches( false );
 
-	static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_uid, String passed_symbol ) throws Exception
-	{
-		if ( arg_debug >= Log_Informational_2 )
-		{
-			System.out.println( "passed_url: " + passed_url );
-			System.out.println( "passed_display_name: " + passed_display_name );
-			System.out.println( "passed_uid: " + passed_uid );
-			System.out.println( "passed_symbol: " + passed_symbol );
-		}
-		
-		InputStreamReader input;
-	
-		URLConnection urlConn = passed_url.openConnection();
-		urlConn.setDoInput( true );
-		urlConn.setDoOutput( false );
-		urlConn.setUseCaches( false );
-	
+	try
+	    {
+		// timeouts caught below
 		input = new InputStreamReader( urlConn.getInputStream() );
-	
-	    char[] data = new char[ 256 ];
-	    int len = 0;
+
+		char[] data = new char[ 256 ];
+		int len = 0;
 		StringBuffer sb = new StringBuffer();		
 	
-	    while ( -1 != ( len = input.read( data, 0, 255 )) )
+		while ( -1 != ( len = input.read( data, 0, 255 )) )
+		    {
+			sb.append( new String( data, 0, len ));
+		    }   
+	
+		DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
+		ByteArrayInputStream inputStream = new ByteArrayInputStream( sb.toString().getBytes( "UTF-8" ));
+	
+		Document myDocument = myBuilder.parse( inputStream );
+		Element rootElement = myDocument.getDocumentElement();
+		process_fixmes_xml( rootElement, passed_symbol );
+	
+		input.close();
+	    }
+	catch( Exception ex )
 	    {
-	        sb.append( new String( data, 0, len ));
-	    }   
+		if ( arg_debug >= Log_Serious )
+		    {
+			System.out.println( "Error connecting to Overpass API for fixmes: " + ex.getMessage() );
+		    }
+	    }
+    }
+
+    static void process_notes_url_common ( URL passed_url, String passed_display_name, String passed_uid, String passed_symbol ) throws Exception
+    {
+	if ( arg_debug >= Log_Informational_2 )
+	    {
+		System.out.println( "passed_url: " + passed_url );
+		System.out.println( "passed_display_name: " + passed_display_name );
+		System.out.println( "passed_uid: " + passed_uid );
+		System.out.println( "passed_symbol: " + passed_symbol );
+	    }
+		
+	InputStreamReader input;
 	
-	    DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
-	    ByteArrayInputStream inputStream = new ByteArrayInputStream( sb.toString().getBytes( "UTF-8" ));
+	URLConnection urlConn = passed_url.openConnection();
+	urlConn.setDoInput( true );
+	urlConn.setDoOutput( false );
+	urlConn.setUseCaches( false );
 	
-	    Document myDocument = myBuilder.parse( inputStream );
-	    Element rootElement = myDocument.getDocumentElement();
-	    process_notes_xml( rootElement, passed_display_name, passed_uid, passed_symbol );
+	try
+	    {
+		// timeouts caught below
+		input = new InputStreamReader( urlConn.getInputStream() );
 	
-	    input.close();
+		char[] data = new char[ 256 ];
+		int len = 0;
+		StringBuffer sb = new StringBuffer();		
+	
+		while ( -1 != ( len = input.read( data, 0, 255 )) )
+		    {
+			sb.append( new String( data, 0, len ));
+		    }   
+	
+		DocumentBuilderFactory myFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder myBuilder = myFactory.newDocumentBuilder();
+		ByteArrayInputStream inputStream = new ByteArrayInputStream( sb.toString().getBytes( "UTF-8" ));
+		
+		Document myDocument = myBuilder.parse( inputStream );
+		Element rootElement = myDocument.getDocumentElement();
+		process_notes_xml( rootElement, passed_display_name, passed_uid, passed_symbol );
+	
+		input.close();
+	    }
+	catch( Exception ex )
+	    {
+		if ( arg_debug >= Log_Serious )
+		    {
+			System.out.println( "Error connecting to API for notes: " + ex.getMessage() );
+		    }
+	    }
 	}
 
 	

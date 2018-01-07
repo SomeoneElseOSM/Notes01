@@ -14,13 +14,13 @@ import org.w3c.dom.NodeList;
 
 public class Notes01 
 {
-    static final String live_api_path = "http://openstreetmap.org/api/0.6/";
-    static final String dev_api_path = "http://api06.dev.openstreetmap.org/api/0.6/";
+    static final String live_api_path = "https://openstreetmap.org/api/0.6/";
+    static final String dev_api_path = "https://api06.dev.openstreetmap.org/api/0.6/";
 
-    static final String de_overpass_path = "http://overpass-api.de/api/";
+    static final String de_overpass_path = "https://overpass-api.de/api/";
     static final String ru_overpass_path = "http://overpass.osm.rambler.ru/cgi/";
-    static final String fr_overpass_path = "http://api.openstreetmap.fr/oapi/interpreter/";
-    static final String ch_overpass_path = "http://overpass.osm.ch/api/";
+    static final String fr_overpass_path = "https://api.openstreetmap.fr/api/";
+    static final String ch_overpass_path = "https://overpass.osm.ch/api/";
 
     final static int Log_Debug_Off = 0;			// Used to turn debug off
     final static int Log_Serious = 1;			// A serious error has occurred, or we always want to output something. 

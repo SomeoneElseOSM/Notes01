@@ -18,7 +18,7 @@ public class Notes01
     static final String dev_api_path = "https://api06.dev.openstreetmap.org/api/0.6/";
 
     static final String de_overpass_path = "https://overpass-api.de/api/";
-    static final String ru_overpass_path = "http://overpass.osm.rambler.ru/cgi/";
+    static final String ru_overpass_path = "http://overpass.openstreetmap.ru/cgi/";
     static final String fr_overpass_path = "https://api.openstreetmap.fr/api/";
     static final String ch_overpass_path = "https://overpass.osm.ch/api/";
 

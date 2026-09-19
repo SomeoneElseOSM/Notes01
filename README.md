@@ -14,8 +14,7 @@ Building
 --------
 If you don't want to just download one of the releases, you can import it into Eclipse if you want to 
 (although, given that it's only a couple of .java files, there's really no 
-need to).  If you're not using an IDE, install a JDK (e.g. 
-from http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html), then just ensure that the `javac` 
+need to).  If you're not using an IDE, install a JDK (e.g. an OpenJDK version), then just ensure that the `javac` 
 that you have just installed is on the PATH, and `javac Notes01.java` in order to 
 create `Notes01.class`.  `Notes01Test.class` contains some unit tests and isn't needed to export notes.  
 You can either `java Notes01 ...` or export `Notes01.jar`.

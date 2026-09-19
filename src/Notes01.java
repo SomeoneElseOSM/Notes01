@@ -18,9 +18,9 @@ public class Notes01
     static final String dev_api_path = "https://api06.dev.openstreetmap.org/api/0.6/";
 
     static final String de_overpass_path = "https://overpass-api.de/api/";
-    static final String ru_overpass_path = "http://overpass.openstreetmap.ru/cgi/";
-    static final String fr_overpass_path = "https://api.openstreetmap.fr/api/";
+    static final String ru_overpass_path = "http://maps.mail.ru/osm/tools/overpass/api/";
     static final String ch_overpass_path = "https://overpass.osm.ch/api/";
+    static final String uk_overpass_path = "https://overpass.atownsend.org.uk/api/";
 
     final static int Log_Debug_Off = 0;			// Used to turn debug off
     final static int Log_Serious = 1;			// A serious error has occurred, or we always want to output something. 
@@ -62,8 +62,8 @@ public class Notes01
      * Other settings, including default values for the above.
      * ------------------------------------------------------------------------------ */
     static String actual_api_path = live_api_path;			// Defaults to live API
-    static String arg_fixmes_api = "de";				// Defaults to Germany
-    static String actual_overpass_path = de_overpass_path;		// Defaults to Germany
+    static String arg_fixmes_api = "uk";				// Defaults to UK
+    static String actual_overpass_path = uk_overpass_path;		// Defaults to UK
 
     static boolean arg_do_notes = false;
     static boolean arg_do_fixmes = false;
@@ -1515,14 +1515,14 @@ public class Notes01
 					actual_overpass_path = ru_overpass_path;
 				    }
 
-				if ( arg_fixmes_api.equalsIgnoreCase( "fr" ))
-				    {
-					actual_overpass_path = fr_overpass_path;
-				    }
-
 				if ( arg_fixmes_api.equalsIgnoreCase( "ch" ))
 				    {
 					actual_overpass_path = ch_overpass_path;
+				    }
+
+				if ( arg_fixmes_api.equalsIgnoreCase( "uk" ))
+				    {
+					actual_overpass_path = uk_overpass_path;
 				    }
 
 				if ( arg_debug >= Log_Informational_2 )
